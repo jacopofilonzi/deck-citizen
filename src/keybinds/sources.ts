@@ -2,7 +2,6 @@ import fs from "node:fs/promises";
 import path from "node:path";
 
 import { decodeXml } from "../xml/decode.ts";
-import { parseDefaultProfile } from "./default-profile.ts";
 import type { BindLayer, KeybindSource } from "./types.ts";
 import { parseUserActionmaps } from "./user-actionmaps.ts";
 
@@ -53,7 +52,7 @@ export function buildFromManifest(data: { Branch?: unknown; Version?: unknown } 
 /**
  * Compares build folder names like `sc-alpha-4.10.2` by their numeric parts.
  */
-function compareBuilds(a: string, b: string): number {
+export function compareBuilds(a: string, b: string): number {
 	const numbers = (value: string): number[] => (value.match(/\d+/g) ?? []).map(Number);
 	const [x, y] = [numbers(a), numbers(b)];
 	for (let i = 0; i < Math.max(x.length, y.length); i++) {
@@ -63,37 +62,6 @@ function compareBuilds(a: string, b: string): number {
 		}
 	}
 	return a.localeCompare(b);
-}
-
-/**
- * Default binds copied into the plugin from a game build (data/defaults/<build>/defaultProfile.xml).
- * Picks the folder matching the installed build, or the newest one available.
- * The file may be plain XML or CryXmlB; both are accepted.
- */
-export class BundledDefaultsSource implements KeybindSource {
-	readonly name = "bundled-defaults";
-
-	readonly #defaultsDir: string;
-	readonly #preferredBuild?: () => Promise<string | undefined>;
-
-	constructor(defaultsDir: string, preferredBuild?: () => Promise<string | undefined>) {
-		this.#defaultsDir = defaultsDir;
-		this.#preferredBuild = preferredBuild;
-	}
-
-	async load(): Promise<BindLayer> {
-		const builds = (await fs.readdir(this.#defaultsDir, { withFileTypes: true }))
-			.filter((entry) => entry.isDirectory())
-			.map((entry) => entry.name)
-			.sort(compareBuilds);
-		const preferred = await this.#preferredBuild?.();
-		const build = builds.find((b) => b === preferred) ?? builds.at(-1);
-		if (build === undefined) {
-			throw new Error(`No bundled default binds in ${this.#defaultsDir}`);
-		}
-		const data = await fs.readFile(path.join(this.#defaultsDir, build, "defaultProfile.xml"));
-		return parseDefaultProfile(decodeXml(data), this.name, build);
-	}
 }
 
 /**

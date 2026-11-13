@@ -46,6 +46,8 @@ export type BindLayer = {
 	activationModes: Map<string, ActivationMode>;
 	/** Game build the layer was taken from, when known (e.g. `sc-alpha-4.10.2`). */
 	build?: string;
+	/** Default binds only: read from the installed game, or the copy bundled with the plugin. */
+	origin?: "game" | "bundled";
 };
 
 /**

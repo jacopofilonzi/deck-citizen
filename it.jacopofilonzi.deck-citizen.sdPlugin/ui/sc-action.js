@@ -426,7 +426,7 @@ function updateGlobal() {
 	}
 	document.getElementById("checkUpdates").checked = state.checkUpdates;
 	document.getElementById("gameInfo").textContent =
-		`Game: ${state.game.installedBuild ?? "not found"} · Default binds: ${state.game.defaultsBuild ?? "not found"} · Your rebinds: ${state.game.userBinds}`;
+		`Game: ${state.game.installedBuild ?? "not found"} · Default binds: ${state.game.reading ? "reading your game…" : state.game.defaultsOrigin === "game" ? "from your game" : `plugin copy (${state.game.defaultsBuild ?? "none"})`} · Your rebinds: ${state.game.userBinds}`;
 
 	const custom = document.getElementById("customGroups");
 	if (!customDirty) {

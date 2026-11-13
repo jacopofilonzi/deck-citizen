@@ -85,7 +85,17 @@ git push origin v0.2.0
   "menu slot" actions; the plugin draws each slot from the group and the device size.
   Coordinates are `x` from the left and `y` from the bottom; `x0y0` is always Back.
 
-## Updating game data after a patch
+## Game data
+
+The default binds and the action names are read from the player's own game: on start the
+plugin reads `Data\Libs\Config\defaultProfile.xml` and
+`Data\Localization\english\global.ini` out of `Data.p4k` (`src/gamedata`, ZIP64 with zstd)
+and caches them in `%LOCALAPPDATA%\deck-citizen\game-data\<build>-<size>-<date>`. This
+takes a couple of seconds and happens again only when the game updates (the plugin watches
+`build_manifest.id`). Until then, or if reading fails, it uses the copy in `game-data/`
+bundled with the plugin, and the key settings say so.
+
+## Updating the bundled fallback copy after a patch
 
 ```sh
 python tools/p4k_extract.py "<StarCitizen>/LIVE/Data.p4k" "config\defaultprofile.xml" game-data/<build>/raw/defaultProfile.cryxml

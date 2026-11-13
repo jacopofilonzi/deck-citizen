@@ -12,6 +12,7 @@ import { BUILTIN_GROUPS, groupToJson, readGroup } from "../catalog/groups.ts";
 import { KEYBOARD, MOUSE } from "../input/keys.ts";
 import { functionImage } from "../render/function-image.ts";
 import { ICON_NAMES, iconSvg } from "../render/icons.ts";
+import type { Labels } from "../gamedata/labels.ts";
 import { renderKey } from "../render/key-image.ts";
 
 /** Stop when no editor page has been connected for this long. */
@@ -26,7 +27,6 @@ const CONTENT_TYPES: Record<string, string> = {
 	".css": "text/css; charset=utf-8",
 };
 
-type Labels = { maps: Record<string, string>; actions: Record<string, { label?: string; description?: string }> };
 
 class HttpError extends Error {
 	readonly status: number;
@@ -49,7 +49,6 @@ class EditorServer {
 	#pages = new Set<http.ServerResponse>();
 	#noPageTimer: NodeJS.Timeout | undefined;
 	#idleTimer: NodeJS.Timeout | undefined;
-	#labels: Labels | undefined;
 
 	constructor() {
 		app.on("changed", () => this.#broadcast("changed"));
@@ -71,7 +70,6 @@ class EditorServer {
 		});
 		this.#server = server;
 		this.#url = `http://127.0.0.1:${(server.address() as AddressInfo).port}/${this.#token}/`;
-		this.#labels = undefined;
 		streamDeck.logger.info("Group editor server started");
 		this.#armNoPageTimer();
 		this.#touch();
@@ -215,16 +213,8 @@ class EditorServer {
 		};
 	}
 
-	async #loadLabels(): Promise<Labels> {
-		if (!this.#labels) {
-			const build = app.keybinds.resolver.layers.find((layer) => layer.build)?.build;
-			try {
-				this.#labels = JSON.parse(await fs.readFile(path.join(PLUGIN_DIR, "data", "defaults", build ?? "", "labels.json"), "utf-8")) as Labels;
-			} catch {
-				this.#labels = { maps: {}, actions: {} };
-			}
-		}
-		return this.#labels;
+	#loadLabels(): Promise<Labels> {
+		return app.gameDefaults.labels();
 	}
 }
 

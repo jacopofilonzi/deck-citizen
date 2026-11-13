@@ -15,7 +15,9 @@ await streamDeck.connect();
 
 try {
 	await app.init();
-	const layers = app.keybinds.resolver.layers.map((layer) => `${layer.name}${layer.build ? ` (${layer.build})` : ""}: ${layer.actions.size} actions`);
+	const layers = app.keybinds.resolver.layers.map(
+		(layer) => `${layer.name}${layer.build || layer.origin ? ` (${[layer.origin, layer.build].filter(Boolean).join(" ")})` : ""}: ${layer.actions.size} actions`,
+	);
 	streamDeck.logger.info(`Keybinds loaded from ${app.location.root}\\${app.location.channel} - ${layers.join(", ")}`);
 } catch (err) {
 	streamDeck.logger.error(`Initialization failed: ${(err as Error).message}`);

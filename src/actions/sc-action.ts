@@ -272,7 +272,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 	async #sendState(instance: ScAction): Promise<void> {
 		const catalog = app.catalog;
 		const user = app.keybinds.resolver.layers.find((layer) => layer.name === "user-actionmaps");
-		const defaults = app.keybinds.resolver.layers.find((layer) => layer.name === "bundled-defaults");
+
 		await streamDeck.ui.sendToPropertyInspector({
 			type: "state",
 			controller: instance.isDial() ? "Encoder" : "Keypad",
@@ -299,7 +299,9 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 			game: {
 				root: app.location.root,
 				channel: app.location.channel,
-				defaultsBuild: defaults?.build ?? null,
+				defaultsBuild: app.gameStatus.defaultsBuild ?? null,
+				defaultsOrigin: app.gameStatus.defaultsOrigin ?? null,
+				reading: app.gameStatus.reading,
 				installedBuild: app.gameStatus.installedBuild ?? null,
 				warning: app.gameStatus.warning ?? null,
 				userBinds: user?.actions.size ?? 0,

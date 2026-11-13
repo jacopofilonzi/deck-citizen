@@ -9,11 +9,10 @@ import { Executor } from "./catalog/executor.ts";
 import { BUILTIN_GROUPS, readCustomGroups } from "./catalog/groups.ts";
 import type { Group } from "./catalog/types.ts";
 import { InputInjector } from "./input/injector.ts";
+import { GameDefaultsSource } from "./gamedata/game-defaults.ts";
 import { KeybindService } from "./keybinds/keybind-service.ts";
 import {
-	BundledDefaultsSource,
 	DEFAULT_GAME_LOCATION,
-	readGameBuild,
 	UserActionmapsSource,
 	type GameLocation,
 } from "./keybinds/sources.ts";
@@ -42,10 +41,15 @@ export const PLUGIN_DIR = path.resolve(path.dirname(fileURLToPath(import.meta.ur
 class App extends EventEmitter<{ changed: [] }> {
 	readonly keybinds = new KeybindService();
 	readonly executor = new Executor(new InputInjector());
+	/** Default binds and action names: read from the installed game, bundled copy as fallback. */
+	readonly gameDefaults = new GameDefaultsSource({
+		bundledDir: path.join(PLUGIN_DIR, "data", "defaults"),
+		location: () => this.location,
+		onRead: () => void this.keybinds.reload(),
+		log: { info: (text) => streamDeck.logger.info(text), warn: (text) => streamDeck.logger.warn(text) },
+	});
 
 	#settings: GlobalSettings = {};
-	/** Build of the installed game (from build_manifest.id), undefined if not found. */
-	#gameBuild: string | undefined;
 	#lastGameWarning: string | undefined;
 	#customGroups: Group[] = [];
 	#customGroupsError: string | undefined;
@@ -66,21 +70,25 @@ class App extends EventEmitter<{ changed: [] }> {
 	}
 
 	/**
-	 * The installed game build, the build of the bundled default binds, and a warning
-	 * when they do not match (or the game is not found).
+	 * Where the default binds come from (the installed game, or the copy bundled with the
+	 * plugin), and a warning when the bundled copy is in use for a different game build,
+	 * or the game is not found.
 	 */
-	get gameStatus(): { installedBuild?: string; defaultsBuild?: string; warning?: string } {
-		const defaultsBuild = this.keybinds.resolver.layers.find((layer) => layer.build)?.build;
-		const installedBuild = this.#gameBuild;
+	get gameStatus(): { installedBuild?: string; defaultsBuild?: string; defaultsOrigin?: string; reading: boolean; warning?: string } {
+		const info = this.gameDefaults.info;
 		let warning: string | undefined;
-		if (this.keybinds.resolver.layers.length === 0) {
-			// Binds not loaded yet: nothing to compare.
-		} else if (!installedBuild) {
-			warning = `Star Citizen was not found in ${path.join(this.location.root, this.location.channel)}. Set the game folder and channel in Plugin settings; until then only the default binds are used.`;
-		} else if (defaultsBuild && installedBuild !== defaultsBuild) {
-			warning = `Your game is ${installedBuild}, but this plugin version knows the default binds of ${defaultsBuild}. Keys you bound yourself work; actions added or changed by the patch may show the wrong key or none. Update the plugin when a new version is out.`;
+		if (this.keybinds.resolver.layers.length === 0 || info.reading) {
+			// Binds not loaded yet, or the game files are being read right now.
+		} else if (!info.installedBuild) {
+			warning = `Star Citizen was not found in ${path.join(this.location.root, this.location.channel)}. Set the game folder and channel in Plugin settings; until then the default binds bundled with the plugin are used.`;
+		} else if (info.origin === "bundled") {
+			const why = info.error ? `the game files could not be read (${info.error})` : "the game files could not be read";
+			warning =
+				info.build && info.build !== info.installedBuild
+					? `Default binds come from the plugin's copy for ${info.build}, because ${why}; your game is ${info.installedBuild}. Keys you bound yourself work; actions changed by the patch may show the wrong key.`
+					: `Default binds come from the plugin's copy, because ${why}.`;
 		}
-		return { installedBuild, defaultsBuild, warning };
+		return { installedBuild: info.installedBuild, defaultsBuild: info.build, defaultsOrigin: info.origin, reading: info.reading, warning };
 	}
 
 	get customGroupsError(): string | undefined {
@@ -96,7 +104,7 @@ class App extends EventEmitter<{ changed: [] }> {
 
 	/**
 	 * Loads the global settings and the keybind sources. The source list is where the
-	 * source of truth is decided: today bundled defaults + the user's actionmaps.xml.
+	 * source of truth is decided: the game's default binds (bundled copy as fallback) + the user's actionmaps.xml.
 	 */
 	async init(): Promise<void> {
 		const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings & JsonObject>();
@@ -109,10 +117,7 @@ class App extends EventEmitter<{ changed: [] }> {
 		});
 
 		await this.keybinds.setSources([
-			new BundledDefaultsSource(path.join(PLUGIN_DIR, "data", "defaults"), async () => {
-				this.#gameBuild = await readGameBuild(this.location);
-				return this.#gameBuild;
-			}),
+			this.gameDefaults,
 			new UserActionmapsSource(() => this.location),
 		]);
 	}
