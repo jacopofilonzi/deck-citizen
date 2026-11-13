@@ -7,3 +7,4 @@ build/
 *.sdPlugin/profiles/
 *.streamDeckPlugin
 dist/
+.backups/

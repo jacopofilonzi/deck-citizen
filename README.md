@@ -5,6 +5,12 @@ Stream Deck plugin that controls Star Citizen through the player's own keybinds.
 
 ## Development
 
+A `Makefile` wraps the common commands (run `make` for the list), including
+`make switch-dev` / `make switch-prod` to move Stream Deck between the linked project
+folder and an installed package (`switch-prod` installs the latest GitHub release,
+`switch-prod-local` a package of the current code). Profiles and settings are kept; a
+backup goes to `.backups/` first. The underlying script is `tools/devtools.mjs`.
+
 ```sh
 npm install
 npm run build        # generate profiles/icons, bundle into it.jacopofilonzi.deck-citizen.sdPlugin
