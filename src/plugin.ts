@@ -26,7 +26,8 @@ try {
 // - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/editor` opens the group editor.
 streamDeck.system.onDidReceiveDeepLink((ev) => {
 	if (ev.url.path === "/debug/editor") {
-		void editorServer.open();
+		// Logged only here (development aid): lets tools drive the editor page.
+		void editorServer.open().then((url) => streamDeck.logger.info(`Debug: editor at ${url}`));
 		return;
 	}
 	if (ev.url.path !== "/debug/profile") {

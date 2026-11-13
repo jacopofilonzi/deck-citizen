@@ -39,7 +39,8 @@ Plugin logs: `it.jacopofilonzi.deck-citizen.sdPlugin/logs/`.
 - **Group editor** (`src/editor`, page in `it.jacopofilonzi.deck-citizen.sdPlugin/editor`): opened from
   the key settings, it runs in the browser. The plugin starts a small web server only while
   the page is open (127.0.0.1, random port, secret token in the URL) and stops it when the
-  page closes or after 15 minutes idle. The page edits the same custom groups JSON.
+  page closes or after 15 minutes idle. The page edits the same custom groups JSON;
+  menu layouts are arranged by dragging keys (or with a menu on each key).
   Import / export: "Export all" writes every custom group plus the game settings (a backup),
   "Export group" writes one group to share; imports are merged into the editor and applied on Save.
 - **Key images** (`src/render`): static SVG keys with the group color bar, caption, icon,

@@ -56,9 +56,10 @@ class EditorServer {
 	}
 
 	/** Starts the server if needed and opens the editor in the default browser. */
-	async open(): Promise<void> {
+	async open(): Promise<string> {
 		const url = this.#url ?? (await this.#start());
 		await streamDeck.system.openUrl(url);
+		return url;
 	}
 
 	async #start(): Promise<string> {
@@ -240,6 +241,7 @@ function preview(body: unknown): unknown {
 		return {
 			error: null,
 			menu: renderKey({ caption: "Menu", label: group.label, icon: group.icon ?? "menu", color: group.color }),
+			back: renderKey({ caption: group.label, label: "Back", icon: "back", color: group.color }),
 			functions: Object.fromEntries(group.functions.map((fn) => [fn.id, functionImage(group, fn, catalog.status(fn))])),
 		};
 	} catch (err) {

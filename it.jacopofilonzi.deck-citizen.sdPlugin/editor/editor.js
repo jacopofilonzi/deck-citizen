@@ -32,6 +32,7 @@ let groups = []; // custom groups being edited
 let pendingSettings = null; // game settings from an imported backup, applied on Save
 let selected = 0;
 let previewTimer;
+let previewImages = {}; // function id (and "back") -> key image of the selected group
 
 // ---------------------------------------------------------------------------
 // Plugin connection
@@ -216,6 +217,7 @@ function updateSidebar() {
 
 function select(i) {
 	selected = i;
+	previewImages = {};
 	updateSidebar();
 	renderMain();
 	schedulePreview();
@@ -657,33 +659,118 @@ function layoutEditor(group, size) {
 		return wrap;
 	}
 	const layout = group.layouts[key];
+	const placed = new Set(Object.values(layout));
+	const update = () => changed({ rerender: true });
+
+	// Unplaced functions: drag them onto a key. Dropping a key here takes it off the menu.
+	const tray = el("div", { class: "layout-tray" }, [
+		el("span", { class: "hint", textContent: group.functions.some((fn) => !placed.has(fn.id)) ? "Not in the menu (drag onto a key):" : "All functions are in the menu. Drag a key here to remove it." }),
+		...group.functions.filter((fn) => !placed.has(fn.id)).map((fn) => trayChip(fn)),
+	]);
+	dropTarget(tray, (data) => {
+		if (data.from) {
+			delete layout[data.from];
+			update();
+		}
+	});
+
 	const grid = el("div", { class: "layout-grid", style: `grid-template-columns: repeat(${size.columns}, minmax(0, 1fr))` });
 	for (let y = size.rows - 1; y >= 0; y--) {
 		for (let x = 0; x < size.columns; x++) {
 			const cell = `x${x}y${y}`;
 			if (x === 0 && y === 0) {
-				grid.append(el("div", { class: "back-cell", textContent: "Back" }));
+				grid.append(el("div", { class: "layout-cell back", title: "Back is always here" }, [keyImage("back"), el("span", { class: "cell-label", textContent: "Back" })]));
 				continue;
 			}
-			const pick = el("select", {
-				title: cell,
-				onchange: () => {
-					if (pick.value) {
-						for (const [other, fnId] of Object.entries(layout)) {
-							if (fnId === pick.value) delete layout[other];
-						}
-						layout[cell] = pick.value;
-					} else {
-						delete layout[cell];
-					}
-					changed({ rerender: true });
-				},
-			}, [el("option", { value: "", textContent: "—" }), ...group.functions.map((fn) => el("option", { value: fn.id, textContent: fn.label, selected: layout[cell] === fn.id }))]);
-			grid.append(pick);
+			grid.append(layoutCell(group, layout, cell, update));
 		}
 	}
-	wrap.append(grid);
+	wrap.append(tray, grid, el("p", { class: "hint", textContent: "Drag functions onto keys; drag a key onto another to swap them, or back to the list to remove it. Each key also has a menu for choosing without the mouse." }));
 	return wrap;
+}
+
+function layoutCell(group, layout, cell, update) {
+	const fnId = layout[cell];
+	const fn = group.functions.find((f) => f.id === fnId);
+	const pick = el("select", {
+		class: "cell-select",
+		title: `Key ${cell}`,
+		"aria-label": `Function on key ${cell}`,
+		onchange: () => {
+			if (pick.value) {
+				for (const [other, id] of Object.entries(layout)) {
+					if (id === pick.value) delete layout[other];
+				}
+				layout[cell] = pick.value;
+			} else {
+				delete layout[cell];
+			}
+			update();
+		},
+	}, [el("option", { value: "", textContent: "— empty —" }), ...group.functions.map((f) => el("option", { value: f.id, textContent: f.label, selected: fnId === f.id }))]);
+	const node = el("div", { class: `layout-cell${fn ? " filled" : ""}`, draggable: fn ? "true" : undefined }, [
+		fn ? keyImage(fn.id) : el("span", { class: "cell-empty", textContent: "Empty" }),
+		pick,
+	]);
+	if (fn) {
+		node.addEventListener("dragstart", (e) => startDrag(e, { fn: fn.id, from: cell }));
+	}
+	dropTarget(node, (data) => {
+		if (data.from === cell) return;
+		const here = layout[cell];
+		if (data.from) {
+			// Key onto key: swap (or move, if this key is empty).
+			delete layout[data.from];
+			if (here) layout[data.from] = here;
+		} else {
+			for (const [other, id] of Object.entries(layout)) {
+				if (id === data.fn) delete layout[other];
+			}
+		}
+		layout[cell] = data.fn;
+		update();
+	});
+	return node;
+}
+
+function trayChip(fn) {
+	const chip = el("div", { class: "tray-chip", draggable: "true", title: "Drag onto a key" }, [keyImage(fn.id), el("span", { textContent: fn.label || fn.id })]);
+	chip.addEventListener("dragstart", (e) => startDrag(e, { fn: fn.id }));
+	return chip;
+}
+
+/** Key image from the last preview; filled in when the preview arrives. */
+function keyImage(fnId) {
+	return el("img", { class: "key-img", "data-key": fnId, src: previewImages[fnId] ?? "", alt: "" });
+}
+
+const DRAG_TYPE = "application/x-deck-citizen-key";
+
+function startDrag(e, data) {
+	e.dataTransfer.setData(DRAG_TYPE, JSON.stringify(data));
+	e.dataTransfer.effectAllowed = "move";
+	const source = e.currentTarget;
+	source.classList.add("dragging");
+	source.addEventListener("dragend", () => source.classList.remove("dragging"), { once: true });
+}
+
+function dropTarget(node, onDrop) {
+	node.addEventListener("dragover", (e) => {
+		if (!e.dataTransfer.types.includes(DRAG_TYPE)) return;
+		e.preventDefault();
+		e.stopPropagation();
+		e.dataTransfer.dropEffect = "move";
+		node.classList.add("drop-over");
+	});
+	node.addEventListener("dragleave", () => node.classList.remove("drop-over"));
+	node.addEventListener("drop", (e) => {
+		node.classList.remove("drop-over");
+		const raw = e.dataTransfer.getData(DRAG_TYPE);
+		if (!raw) return;
+		e.preventDefault();
+		e.stopPropagation();
+		onDrop(JSON.parse(raw));
+	});
 }
 
 /** Same order as the plugin's automatic layout: reading order, skipping Back. */
@@ -723,9 +810,18 @@ async function updatePreview() {
 		error.hidden = !result.error;
 		error.textContent = result.error ? friendlyError(result.error) : "";
 		if (!result.error) {
+			previewImages = { ...result.functions, back: result.back };
+			for (const img of document.querySelectorAll("img.key-img")) {
+				img.src = previewImages[img.dataset.key] ?? "";
+			}
 			keys.replaceChildren(
 				el("figure", {}, [el("img", { src: result.menu, alt: "" }), el("figcaption", { textContent: "Menu key" })]),
-				...group.functions.map((fn) => el("figure", {}, [el("img", { src: result.functions[fn.id], alt: "" }), el("figcaption", { textContent: fn.label })])),
+				...group.functions.map((fn) => {
+					// Drag a preview onto the menu layout grid to place that function.
+					const figure = el("figure", { class: "draggable", draggable: "true", title: "Drag onto the menu layout" }, [el("img", { src: result.functions[fn.id], alt: "" }), el("figcaption", { textContent: fn.label })]);
+					figure.addEventListener("dragstart", (e) => startDrag(e, { fn: fn.id }));
+					return figure;
+				}),
 			);
 		}
 	} catch (err) {

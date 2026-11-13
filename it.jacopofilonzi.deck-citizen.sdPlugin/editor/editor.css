@@ -218,6 +218,7 @@ textarea {
 	padding: 16px;
 	background: var(--panel);
 	overflow-y: auto;
+	overflow-x: hidden;
 	display: flex;
 	flex-direction: column;
 	gap: 12px;
@@ -541,24 +542,97 @@ button.recording {
 /* Menu layout grid */
 .layout-grid {
 	display: grid;
-	gap: 6px;
+	gap: 8px;
 	max-width: 640px;
 }
 
-.layout-grid select {
-	height: 54px;
-	font-size: 12px;
-	padding: 2px;
+.layout-cell {
+	display: grid;
+	gap: 4px;
+	padding: 4px;
+	border: 1px dashed var(--line);
+	border-radius: 10px;
+	min-width: 0;
 }
 
-.layout-grid .back-cell {
-	height: 54px;
+.layout-cell.filled {
+	border-style: solid;
+	cursor: grab;
+}
+
+.layout-cell.back {
+	opacity: 0.7;
+}
+
+.layout-cell .key-img,
+.layout-cell .cell-empty {
+	width: 100%;
+	aspect-ratio: 1;
+	border-radius: 8px;
+}
+
+.key-img[src=""] {
+	visibility: hidden;
+}
+
+.layout-cell .cell-empty {
 	display: grid;
 	place-items: center;
-	border: 1px dashed var(--line);
-	border-radius: 6px;
 	color: var(--muted);
 	font-size: 12px;
+	background: rgb(255 255 255 / 0.02);
+}
+
+.layout-cell .cell-label {
+	text-align: center;
+	font-size: 11px;
+	color: var(--muted);
+}
+
+.layout-cell .cell-select {
+	font-size: 11px;
+	padding: 2px 4px;
+	height: auto;
+}
+
+.layout-cell.drop-over,
+.layout-tray.drop-over {
+	border-color: var(--group-color, #3b82f6);
+	background: color-mix(in srgb, var(--group-color, #3b82f6) 14%, transparent);
+}
+
+.dragging {
+	opacity: 0.4;
+}
+
+.layout-tray {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px;
+	min-height: 52px;
+	padding: 8px;
+	border: 1px dashed var(--line);
+	border-radius: 10px;
+	max-width: 640px;
+}
+
+.tray-chip {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	padding: 3px 8px 3px 3px;
+	border: 1px solid var(--line);
+	border-radius: 8px;
+	background: var(--panel-2);
+	cursor: grab;
+	font-size: 13px;
+}
+
+.tray-chip .key-img {
+	width: 36px;
+	height: 36px;
+	border-radius: 5px;
 }
 
 /* Preview */
@@ -821,4 +895,12 @@ button.recording {
 
 .more .field + .field {
 	margin-top: 6px;
+}
+
+.preview-keys figure.draggable {
+	cursor: grab;
+}
+
+.preview-keys figure.draggable img {
+	pointer-events: none;
 }
