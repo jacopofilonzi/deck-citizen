@@ -559,6 +559,10 @@
 		"prone/prone_rollright": {
 			"label": "Roll Right (while Prone)"
 		},
+		"seat_general/v_cycle_industrial_mode": {
+			"description": "Next Industrial Mode",
+			"label": "Cycle Industrial Operator Modes"
+		},
 		"seat_general/v_eject": {
 			"label": "Eject"
 		},

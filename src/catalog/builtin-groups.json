@@ -269,7 +269,7 @@
 			"icon": "mining",
 			"stayInMenu": true,
 			"functions": [
-				{ "id": "mode", "label": "Mining Mode", "icon": "mining", "action": "seat_general/v_toggle_mining_mode" },
+				{ "id": "mode", "label": "Mining Mode", "icon": "mining", "action": "seat_general/v_toggle_mining_mode", "fallback": "seat_general/v_cycle_industrial_mode" },
 				{ "id": "fire", "label": "Fire Laser", "icon": "laser", "action": "spaceship_mining/v_toggle_mining_laser_fire" },
 				{ "id": "switch", "label": "Switch Laser", "icon": "swap", "action": "spaceship_mining/v_toggle_mining_laser_type" },
 				{ "id": "jettison", "label": "Jettison Cargo", "icon": "jettison", "action": "spaceship_mining/v_jettison_volatile_cargo" },
@@ -291,7 +291,7 @@
 			"icon": "salvage",
 			"stayInMenu": true,
 			"functions": [
-				{ "id": "mode", "label": "Salvage Mode", "icon": "salvage", "action": "seat_general/v_toggle_salvage_mode" },
+				{ "id": "mode", "label": "Salvage Mode", "icon": "salvage", "action": "seat_general/v_toggle_salvage_mode", "fallback": "seat_general/v_cycle_industrial_mode" },
 				{ "id": "fire_left", "label": "Fire Left", "icon": "salvage", "action": "spaceship_salvage/v_salvage_toggle_fire_left" },
 				{ "id": "fire_focused", "label": "Fire Focused", "icon": "laser", "action": "spaceship_salvage/v_salvage_toggle_fire_focused" },
 				{ "id": "fire_right", "label": "Fire Right", "icon": "salvage", "action": "spaceship_salvage/v_salvage_toggle_fire_right" },
@@ -324,11 +324,12 @@
 				{ "id": "mining", "label": "Mining", "icon": "mining", "action": "seat_general/v_set_mining_mode" },
 				{ "id": "salvage", "label": "Salvage", "icon": "salvage", "action": "seat_general/v_set_salvage_mode" },
 				{ "id": "refuel", "label": "Refuel", "icon": "fuel", "action": "seat_general/v_set_refuel_mode" },
+				{ "id": "industrial", "label": "Industrial Mode", "icon": "mining", "action": "seat_general/v_cycle_industrial_mode" },
 				{ "id": "prev", "label": "Prev Mode", "icon": "chevron-left", "action": "seat_general/v_operator_mode_cycle_back" },
 				{ "id": "next", "label": "Next Mode", "icon": "chevron-right", "action": "seat_general/v_operator_mode_cycle_forward" }
 			],
 			"layouts": {
-				"5x3": { "x1y2": "flight", "x2y2": "guns", "x3y2": "missiles", "x4y2": "scan", "x1y1": "quantum", "x2y1": "mining", "x3y1": "salvage", "x4y1": "refuel", "x1y0": "prev", "x2y0": "next" }
+				"5x3": { "x1y2": "flight", "x2y2": "guns", "x3y2": "missiles", "x4y2": "scan", "x1y1": "quantum", "x2y1": "mining", "x3y1": "salvage", "x4y1": "refuel", "x1y0": "prev", "x2y0": "next", "x4y0": "industrial" }
 			}
 		},
 		{

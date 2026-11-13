@@ -278,8 +278,9 @@
   <action name="v_emergency_exit" activationMode="tap" keyboard="u+lshift" joystick=" " UILabel="@ui_CIEmergencyExit" UIDescription="@ui_CIEmergencyExitDesc"/>
   <action name="v_eject" activationMode="press" keyboard="ralt+y" gamepad=" " joystick=" " UILabel="@ui_CIEject" UIDescription="@ui_CIEjectDesc" Category="PlayerActions"/>
   <action name="v_view_look_behind" activationMode="delayed_hold_no_retrigger" keyboard="comma" joystick=" " gamepad="shoulderl+a" UILabel="@ui_CILookBehind" UIDescription="@ui_CILookBehindDesc"/>
-  <action name="v_toggle_mining_mode" activationMode="press" keyboard="m" gamepad=" " joystick=" " UILabel="@ui_CIMiningMode" UIDescription="@ui_CIMiningModeDesc" Category="ShipSystems"/>
-  <action name="v_toggle_salvage_mode" activationMode="press" keyboard="m" gamepad=" " joystick=" " UILabel="@ui_CISalvageMode" UIDescription="@ui_CISalvageModeDesc" Category="ShipSystems"/>
+  <action name="v_toggle_mining_mode" activationMode="press" keyboard="" gamepad=" " joystick=" " UILabel="@ui_CIMiningMode" UIDescription="@ui_CIMiningModeDesc" Category="ShipSystems"/>
+  <action name="v_toggle_salvage_mode" activationMode="press" keyboard="" gamepad=" " joystick=" " UILabel="@ui_CISalvageMode" UIDescription="@ui_CISalvageModeDesc" Category="ShipSystems"/>
+  <action name="v_cycle_industrial_mode" activationMode="press" keyboard="m" gamepad=" " joystick=" " UILabel="@ui_CIIndustrialMode" UIDescription="@ui_CIIndustrialModeDesc" Category="ShipSystems"/>
   <action name="v_toggle_refuel_mode" activationMode="press" keyboard="m" gamepad=" " joystick=" " UILabel="@ui_CIRefuelMode" UIDescription="@ui_CIRefuelModeDesc" Category="ShipSystems"/>
   <action name="v_toggle_scan_mode" activationMode="press" keyboard="v" gamepad="dpad_right" joystick=" " UILabel="@ui_CIScanningMode" UIDescription="@ui_CIScanningModeDesc" Category="ShipSystems"/>
   <action name="v_toggle_quantum_mode" activationMode="press" keyboard=" " gamepad=" " joystick=" " UILabel="@ui_CIQuantumTravelSystemToggle" UIDescription="@ui_CIQuantumTravelSystemToggleDesc" Category="ShipSystems"/>
