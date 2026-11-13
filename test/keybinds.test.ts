@@ -7,10 +7,15 @@ import { BUILTIN_GROUPS } from "../src/catalog/groups.ts";
 import { planPress } from "../src/keybinds/activation.ts";
 import { parseDefaultProfile } from "../src/keybinds/default-profile.ts";
 import { KeybindResolver } from "../src/keybinds/resolver.ts";
+import { buildFromManifest } from "../src/keybinds/sources.ts";
 import { parseUserActionmaps } from "../src/keybinds/user-actionmaps.ts";
 import { decodeXml } from "../src/xml/decode.ts";
 
-const BUILD = "sc-alpha-4.10.2";
+// The newest bundled game build: the one the plugin ships for current players.
+const BUILD = fs
+	.readdirSync(path.join(import.meta.dirname, "..", "game-data"))
+	.sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
+	.at(-1)!;
 const dataDir = path.join(import.meta.dirname, "..", "game-data", BUILD);
 const read = (file: string): Buffer => fs.readFileSync(file);
 
@@ -87,8 +92,23 @@ describe("built-in groups", () => {
 			for (const fn of group.functions) {
 				if (fn.command.type === "game") {
 					assert.ok(resolver.has(fn.command.action), `${group.id}/${fn.id} -> ${fn.command.action}`);
+					if (fn.command.fallback) {
+						assert.ok(resolver.has(fn.command.fallback), `${group.id}/${fn.id} fallback -> ${fn.command.fallback}`);
+					}
+				} else if (fn.command.type === "ref") {
+					const [groupId, fnId] = fn.command.ref.split("/");
+					assert.ok(BUILTIN_GROUPS.find((g) => g.id === groupId)?.functions.some((f) => f.id === fnId), `${group.id}/${fn.id} ref -> ${fn.command.ref}`);
 				}
 			}
 		}
+	});
+});
+
+describe("game build", () => {
+	it("takes the patch from Version, not from the Branch name", () => {
+		assert.equal(buildFromManifest({ Branch: "sc-alpha-4.10.0", Version: "4.10.200.58746" }), "sc-alpha-4.10.2");
+		assert.equal(buildFromManifest({ Branch: "sc-alpha-4.1.0", Version: "4.1.0.123" }), "sc-alpha-4.1.0");
+		assert.equal(buildFromManifest({ Branch: "sc-alpha-4.10.0" }), "sc-alpha-4.10.0");
+		assert.equal(buildFromManifest(undefined), undefined);
 	});
 });

@@ -2,6 +2,7 @@
   "name": "deck-citizen",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Stream Deck plugin to control Star Citizen through the player's own keybinds.",
   "type": "module",
   "scripts": {

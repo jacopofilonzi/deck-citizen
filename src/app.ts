@@ -40,6 +40,9 @@ class App extends EventEmitter<{ changed: [] }> {
 	readonly executor = new Executor(new InputInjector());
 
 	#settings: GlobalSettings = {};
+	/** Build of the installed game (from build_manifest.id), undefined if not found. */
+	#gameBuild: string | undefined;
+	#lastGameWarning: string | undefined;
 	#customGroups: Group[] = [];
 	#customGroupsError: string | undefined;
 	#catalog = new Catalog(BUILTIN_GROUPS, this.keybinds.resolver);
@@ -56,6 +59,24 @@ class App extends EventEmitter<{ changed: [] }> {
 
 	get settings(): Readonly<GlobalSettings> {
 		return this.#settings;
+	}
+
+	/**
+	 * The installed game build, the build of the bundled default binds, and a warning
+	 * when they do not match (or the game is not found).
+	 */
+	get gameStatus(): { installedBuild?: string; defaultsBuild?: string; warning?: string } {
+		const defaultsBuild = this.keybinds.resolver.layers.find((layer) => layer.build)?.build;
+		const installedBuild = this.#gameBuild;
+		let warning: string | undefined;
+		if (this.keybinds.resolver.layers.length === 0) {
+			// Binds not loaded yet: nothing to compare.
+		} else if (!installedBuild) {
+			warning = `Star Citizen was not found in ${path.join(this.location.root, this.location.channel)}. Set the game folder and channel in Plugin settings; until then only the default binds are used.`;
+		} else if (defaultsBuild && installedBuild !== defaultsBuild) {
+			warning = `Your game is ${installedBuild}, but this plugin version knows the default binds of ${defaultsBuild}. Keys you bound yourself work; actions added or changed by the patch may show the wrong key or none. Update the plugin when a new version is out.`;
+		}
+		return { installedBuild, defaultsBuild, warning };
 	}
 
 	get customGroupsError(): string | undefined {
@@ -84,7 +105,10 @@ class App extends EventEmitter<{ changed: [] }> {
 		});
 
 		await this.keybinds.setSources([
-			new BundledDefaultsSource(path.join(PLUGIN_DIR, "data", "defaults"), () => readGameBuild(this.location)),
+			new BundledDefaultsSource(path.join(PLUGIN_DIR, "data", "defaults"), async () => {
+				this.#gameBuild = await readGameBuild(this.location);
+				return this.#gameBuild;
+			}),
 			new UserActionmapsSource(() => this.location),
 		]);
 	}
@@ -126,6 +150,11 @@ class App extends EventEmitter<{ changed: [] }> {
 	}
 
 	#rebuild(): void {
+		const warning = this.gameStatus.warning;
+		if (warning && warning !== this.#lastGameWarning) {
+			streamDeck.logger.warn(warning);
+		}
+		this.#lastGameWarning = warning;
 		this.#catalog = new Catalog([...BUILTIN_GROUPS, ...this.#customGroups], this.keybinds.resolver);
 		this.emit("changed");
 	}

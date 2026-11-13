@@ -188,7 +188,10 @@ function render() {
 		app.replaceChildren(el("div", { id: "main" }), renderGlobal());
 		main = document.getElementById("main");
 	}
-	main.replaceChildren(...(state.controller === "Encoder" ? renderDial() : renderKey()));
+	main.replaceChildren(
+		...(state.game.warning ? [message("warning", state.game.warning)] : []),
+		...(state.controller === "Encoder" ? renderDial() : renderKey()),
+	);
 	updateGlobal();
 }
 
@@ -399,7 +402,7 @@ function updateGlobal() {
 		channel.value = state.game.channel;
 	}
 	document.getElementById("gameInfo").textContent =
-		`Default binds: ${state.game.defaultsBuild ?? "not found"} · Your rebinds: ${state.game.userBinds}`;
+		`Game: ${state.game.installedBuild ?? "not found"} · Default binds: ${state.game.defaultsBuild ?? "not found"} · Your rebinds: ${state.game.userBinds}`;
 
 	const custom = document.getElementById("customGroups");
 	if (!customDirty) {

@@ -25,16 +25,29 @@ export function userProfileDir(location: GameLocation): string {
 }
 
 /**
- * Reads the game build branch (e.g. `sc-alpha-4.10.2`) from build_manifest.id.
+ * Reads the installed game build (e.g. `sc-alpha-4.10.2`) from build_manifest.id.
  */
 export async function readGameBuild(location: GameLocation): Promise<string | undefined> {
 	try {
 		const manifest = JSON.parse(await fs.readFile(path.join(channelDir(location), "build_manifest.id"), "utf-8"));
-		const branch = manifest?.Data?.Branch;
-		return typeof branch === "string" ? branch : undefined;
+		return buildFromManifest(manifest?.Data);
 	} catch {
 		return undefined;
 	}
+}
+
+/**
+ * Build name from the manifest data. `Branch` only names the release line
+ * (`sc-alpha-4.10.0`); `Version` (`4.10.200.58746`) carries the patch, in hundreds.
+ */
+export function buildFromManifest(data: { Branch?: unknown; Version?: unknown } | undefined): string | undefined {
+	const branch = typeof data?.Branch === "string" ? data.Branch : undefined;
+	const version = typeof data?.Version === "string" ? /^(\d+)\.(\d+)\.(\d+)/.exec(data.Version) : null;
+	if (!version) {
+		return branch;
+	}
+	const prefix = branch?.replace(/-?\d+(\.\d+)*$/, "") || "sc-alpha";
+	return `${prefix}-${version[1]}.${version[2]}.${Math.floor(Number(version[3]) / 100)}`;
 }
 
 /**

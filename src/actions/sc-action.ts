@@ -276,6 +276,8 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 				root: app.location.root,
 				channel: app.location.channel,
 				defaultsBuild: defaults?.build ?? null,
+				installedBuild: app.gameStatus.installedBuild ?? null,
+				warning: app.gameStatus.warning ?? null,
 				userBinds: user?.actions.size ?? 0,
 			},
 			// The stored JSON, not the parsed groups: if it is invalid the user must still see and fix it.

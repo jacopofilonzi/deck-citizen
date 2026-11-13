@@ -1,7 +1,7 @@
 # Star Citizen for Stream Deck
 
 Stream Deck plugin that controls Star Citizen through the player's own keybinds.
-Windows only. Inputs are sent with `SendInput` using scancodes.
+**Windows only**
 
 ## Development
 
@@ -80,3 +80,9 @@ npm test   # checks that every built-in group still points at existing actions
 ```
 
 `tools/*.py` need Python 3.14+ (standard library only).
+
+## License
+
+MIT, see [LICENSE](LICENSE). The files in `game-data/` are extracted from Star Citizen and
+belong to Cloud Imperium Games; they are not covered by the MIT license. This is a fan-made
+tool, not affiliated with or endorsed by Cloud Imperium Games or Elgato.
