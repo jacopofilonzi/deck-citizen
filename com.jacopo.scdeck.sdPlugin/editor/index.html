@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Star Citizen Deck · Group editor</title>
+		<link rel="stylesheet" href="editor.css" />
+	</head>
+	<body>
+		<header class="topbar">
+			<div class="brand">
+				<span class="brand-mark"></span>
+				<div>
+					<h1>Custom groups</h1>
+					<p>Star Citizen for Stream Deck</p>
+				</div>
+			</div>
+			<div class="topbar-actions">
+				<span id="saveStatus" class="save-status"></span>
+				<button id="discard" class="ghost">Discard changes</button>
+				<button id="save" class="primary">Save</button>
+			</div>
+		</header>
+		<div id="banner" class="banner" hidden></div>
+		<div class="layout">
+			<aside class="sidebar">
+				<div class="sidebar-head">Your groups</div>
+				<ul id="groupList" class="group-list"></ul>
+				<button id="newGroup" class="ghost wide">+ New group</button>
+				<label class="field">
+					<span>Start from a built-in group</span>
+					<select id="copyBuiltin"></select>
+				</label>
+				<details class="advanced">
+					<summary>JSON</summary>
+					<p class="hint">All custom groups, as saved. Edit and apply, or copy to share.</p>
+					<textarea id="json" spellcheck="false"></textarea>
+					<div class="row-buttons">
+						<button id="applyJson" class="ghost">Apply JSON</button>
+						<button id="copyJson" class="ghost">Copy</button>
+					</div>
+					<p id="jsonError" class="error-text" hidden></p>
+				</details>
+			</aside>
+			<main id="main" class="main"></main>
+			<aside class="preview">
+				<div class="sidebar-head">Preview</div>
+				<p class="hint">Drawn by the plugin with your current binds.</p>
+				<div id="previewError" class="preview-error" hidden></div>
+				<div id="previewKeys" class="preview-keys"></div>
+			</aside>
+		</div>
+		<dialog id="picker" class="picker">
+			<form method="dialog" class="picker-head">
+				<h2 id="pickerTitle"></h2>
+				<button class="ghost" value="cancel">Close</button>
+			</form>
+			<input id="pickerSearch" type="search" placeholder="Search…" autocomplete="off" />
+			<div id="pickerBody" class="picker-body"></div>
+		</dialog>
+		<script src="editor.js"></script>
+	</body>
+</html>

@@ -1,0 +1,161 @@
+{
+	"$comment": "Automatic groups shipped with the plugin. Each function points at a game action (<actionmap>/<action>); keys come from the player's binds. Layout coordinates: x from the left, y from the bottom, x0y0 is reserved for Back.",
+	"groups": [
+		{
+			"id": "doors",
+			"label": "Doors",
+			"color": "#3b82f6",
+			"icon": "door",
+			"functions": [
+				{ "id": "open", "label": "Open", "icon": "door-open", "action": "spaceship_general/v_open_all_doors" },
+				{ "id": "close", "label": "Close", "icon": "door-close", "action": "spaceship_general/v_close_all_doors" },
+				{ "id": "toggle", "label": "Toggle", "icon": "door", "action": "spaceship_general/v_toggle_all_doors" },
+				{ "id": "lock", "label": "Lock", "icon": "lock", "action": "spaceship_general/v_lock_all_doors" },
+				{ "id": "unlock", "label": "Unlock", "icon": "unlock", "action": "spaceship_general/v_unlock_all_doors" },
+				{ "id": "toggle_lock", "label": "Toggle Lock", "icon": "lock", "action": "spaceship_general/v_toggle_all_doorlocks" }
+			],
+			"layouts": {
+				"5x3": { "x1y1": "open", "x3y1": "close" }
+			}
+		},
+		{
+			"id": "lights",
+			"label": "Lights",
+			"color": "#eab308",
+			"icon": "light",
+			"functions": [
+				{ "id": "on", "label": "On", "icon": "light", "action": "lights_controller/v_lights_on" },
+				{ "id": "off", "label": "Off", "icon": "light-off", "action": "lights_controller/v_lights_off" },
+				{ "id": "toggle", "label": "Toggle", "icon": "light", "action": "lights_controller/v_lights" }
+			],
+			"layouts": {
+				"5x3": { "x1y1": "on", "x3y1": "off" }
+			}
+		},
+		{
+			"id": "power",
+			"label": "Power",
+			"color": "#22c55e",
+			"icon": "power",
+			"functions": [
+				{ "id": "all_on", "label": "Power On", "icon": "power", "action": "spaceship_power/v_power_set_on" },
+				{ "id": "all_toggle", "label": "Power Toggle", "icon": "power", "action": "spaceship_power/v_power_toggle" },
+				{ "id": "all_off", "label": "Power Off", "icon": "power-off", "action": "spaceship_power/v_power_set_off" },
+				{ "id": "thrusters_on", "label": "Thrusters On", "icon": "thrusters", "action": "spaceship_power/v_power_set_thrusters_on" },
+				{ "id": "thrusters_toggle", "label": "Thrusters Toggle", "icon": "thrusters", "action": "spaceship_power/v_power_toggle_thrusters" },
+				{ "id": "thrusters_off", "label": "Thrusters Off", "icon": "thrusters-off", "action": "spaceship_power/v_power_set_thrusters_off" },
+				{ "id": "shields_on", "label": "Shields On", "icon": "shield", "action": "spaceship_power/v_power_set_shields_on" },
+				{ "id": "shields_toggle", "label": "Shields Toggle", "icon": "shield", "action": "spaceship_power/v_power_toggle_shields" },
+				{ "id": "shields_off", "label": "Shields Off", "icon": "shield-off", "action": "spaceship_power/v_power_set_shields_off" },
+				{ "id": "weapons_on", "label": "Weapons On", "icon": "weapons", "action": "spaceship_power/v_power_set_weapons_on" },
+				{ "id": "weapons_toggle", "label": "Weapons Toggle", "icon": "weapons", "action": "spaceship_power/v_power_toggle_weapons" },
+				{ "id": "weapons_off", "label": "Weapons Off", "icon": "weapons-off", "action": "spaceship_power/v_power_set_weapons_off" }
+			],
+			"layouts": {
+				"5x3": { "x1y2": "all_on", "x1y1": "all_toggle", "x1y0": "all_off", "x2y2": "thrusters_on", "x2y1": "thrusters_toggle", "x2y0": "thrusters_off", "x3y2": "shields_on", "x3y1": "shields_toggle", "x3y0": "shields_off", "x4y2": "weapons_on", "x4y1": "weapons_toggle", "x4y0": "weapons_off" }
+			}
+		},
+		{
+			"id": "power_distribution",
+			"label": "Power Distribution",
+			"color": "#14b8a6",
+			"icon": "power",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "engines_up", "label": "Engines +", "icon": "thrusters", "action": "spaceship_power/v_engineering_assignment_engine_increase" },
+				{ "id": "engines_down", "label": "Engines -", "icon": "thrusters", "action": "spaceship_power/v_engineering_assignment_engine_decrease" },
+				{ "id": "shields_up", "label": "Shields +", "icon": "shield", "action": "spaceship_power/v_engineering_assignment_shields_increase" },
+				{ "id": "shields_down", "label": "Shields -", "icon": "shield", "action": "spaceship_power/v_engineering_assignment_shields_decrease" },
+				{ "id": "weapons_up", "label": "Weapons +", "icon": "weapons", "action": "spaceship_power/v_engineering_assignment_weapons_increase" },
+				{ "id": "weapons_down", "label": "Weapons -", "icon": "weapons", "action": "spaceship_power/v_engineering_assignment_weapons_decrease" },
+				{ "id": "reset", "label": "Reset", "icon": "reset", "action": "spaceship_power/v_engineering_assignment_reset" }
+			],
+			"layouts": {
+				"5x3": { "x1y2": "engines_up", "x1y1": "engines_down", "x2y2": "shields_up", "x2y1": "shields_down", "x3y2": "weapons_up", "x3y1": "weapons_down", "x4y0": "reset" }
+			}
+		},
+		{
+			"id": "shields",
+			"label": "Shield Faces",
+			"color": "#8b5cf6",
+			"icon": "shield",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "front", "label": "Front", "icon": "arrow-up", "action": "spaceship_defensive/v_shield_raise_level_forward" },
+				{ "id": "back", "label": "Back", "icon": "arrow-down", "action": "spaceship_defensive/v_shield_raise_level_back" },
+				{ "id": "left", "label": "Left", "icon": "arrow-left", "action": "spaceship_defensive/v_shield_raise_level_left" },
+				{ "id": "right", "label": "Right", "icon": "arrow-right", "action": "spaceship_defensive/v_shield_raise_level_right" },
+				{ "id": "top", "label": "Top", "icon": "to-top", "action": "spaceship_defensive/v_shield_raise_level_up" },
+				{ "id": "bottom", "label": "Bottom", "icon": "to-bottom", "action": "spaceship_defensive/v_shield_raise_level_down" },
+				{ "id": "reset", "label": "Reset", "icon": "reset", "action": "spaceship_defensive/v_shield_reset_level" }
+			],
+			"layouts": {
+				"5x3": { "x2y2": "front", "x1y1": "left", "x2y1": "reset", "x3y1": "right", "x2y0": "back", "x4y2": "top", "x4y0": "bottom" }
+			}
+		},
+		{
+			"id": "landing",
+			"label": "Landing Gear",
+			"color": "#f97316",
+			"icon": "gear",
+			"functions": [
+				{ "id": "toggle", "label": "Toggle", "icon": "gear", "action": "spaceship_movement/v_toggle_landing_system" },
+				{ "id": "deploy", "label": "Deploy", "icon": "gear-down", "action": "spaceship_movement/v_deploy_landing_system" },
+				{ "id": "retract", "label": "Retract", "icon": "gear-up", "action": "spaceship_movement/v_retract_landing_system" },
+				{ "id": "autoland", "label": "Autoland", "icon": "autoland", "action": "spaceship_movement/v_autoland" }
+			]
+		},
+		{
+			"id": "vtol",
+			"label": "VTOL",
+			"color": "#ec4899",
+			"icon": "vtol",
+			"functions": [
+				{ "id": "toggle", "label": "Toggle", "icon": "vtol", "action": "spaceship_movement/v_vtol_toggle" },
+				{ "id": "on", "label": "On", "icon": "vtol", "action": "spaceship_movement/v_vtol_on" },
+				{ "id": "off", "label": "Off", "icon": "vtol-off", "action": "spaceship_movement/v_vtol_off" }
+			]
+		},
+		{
+			"id": "flight",
+			"label": "Flight",
+			"color": "#06b6d4",
+			"icon": "ship",
+			"functions": [
+				{ "id": "flight_ready", "label": "Flight Ready", "icon": "ship", "action": "spaceship_general/v_flightready" },
+				{ "id": "decoupled_toggle", "label": "Decoupled Toggle", "icon": "decoupled", "action": "spaceship_movement/v_ifcs_vector_decoupling_toggle" },
+				{ "id": "decoupled_on", "label": "Decoupled On", "icon": "decoupled", "action": "spaceship_movement/v_ifcs_vector_decoupling_on" },
+				{ "id": "decoupled_off", "label": "Decoupled Off", "icon": "decoupled-off", "action": "spaceship_movement/v_ifcs_vector_decoupling_off" },
+				{ "id": "limiter_toggle", "label": "Speed Limiter Toggle", "icon": "limiter", "action": "spaceship_movement/v_ifcs_speed_limiter_toggle" },
+				{ "id": "limiter_on", "label": "Speed Limiter On", "icon": "limiter", "action": "spaceship_movement/v_ifcs_speed_limiter_on" },
+				{ "id": "limiter_off", "label": "Speed Limiter Off", "icon": "limiter-off", "action": "spaceship_movement/v_ifcs_speed_limiter_off" },
+				{ "id": "gsafe_toggle", "label": "G-Safe Toggle", "icon": "gforce", "action": "spaceship_movement/v_ifcs_toggle_gforce_safety" },
+				{ "id": "gsafe_on", "label": "G-Safe On", "icon": "gforce", "action": "spaceship_movement/v_ifcs_gsafe_on" },
+				{ "id": "gsafe_off", "label": "G-Safe Off", "icon": "gforce-off", "action": "spaceship_movement/v_ifcs_gsafe_off" }
+			]
+		},
+		{
+			"id": "quantum",
+			"label": "Quantum",
+			"color": "#6366f1",
+			"icon": "quantum",
+			"functions": [
+				{ "id": "mode_toggle", "label": "Quantum Mode Toggle", "icon": "quantum", "action": "seat_general/v_toggle_quantum_mode" },
+				{ "id": "mode_set", "label": "Quantum Mode", "icon": "quantum", "action": "seat_general/v_set_quantum_mode" },
+				{ "id": "engage", "label": "Engage", "icon": "quantum-engage", "action": "spaceship_quantum/v_toggle_qdrive_engagement" }
+			]
+		},
+		{
+			"id": "docking",
+			"label": "Docking",
+			"color": "#a3a3a3",
+			"icon": "dock",
+			"functions": [
+				{ "id": "request", "label": "Request Docking", "icon": "dock", "action": "spaceship_docking/v_toggle_docking_request" },
+				{ "id": "ports_toggle", "label": "Port Locks Toggle", "icon": "lock", "action": "spaceship_general/v_toggle_all_portlocks" },
+				{ "id": "ports_lock", "label": "Lock Ports", "icon": "lock", "action": "spaceship_general/v_lock_all_ports" },
+				{ "id": "ports_unlock", "label": "Unlock Ports", "icon": "unlock", "action": "spaceship_general/v_unlock_all_ports" }
+			]
+		}
+	]
+}

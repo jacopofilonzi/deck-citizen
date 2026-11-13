@@ -1,0 +1,32 @@
+{
+  "name": "deck-citizen",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Stream Deck plugin to control Star Citizen through the player's own keybinds.",
+  "type": "module",
+  "scripts": {
+    "build": "node tools/make-assets.mjs && rollup -c",
+    "watch": "node tools/make-assets.mjs && rollup -c -w --watch.onEnd=\"streamdeck restart com.jacopo.scdeck\"",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test test/*.test.ts",
+    "validate": "streamdeck validate com.jacopo.scdeck.sdPlugin",
+    "pack": "npm run build && streamdeck pack com.jacopo.scdeck.sdPlugin --force"
+  },
+  "dependencies": {
+    "@elgato/streamdeck": "^3.0.4",
+    "fast-xml-parser": "^5.12.0",
+    "koffi": "^3.3.7"
+  },
+  "devDependencies": {
+    "@elgato/cli": "^1.10.4",
+    "@rollup/plugin-commonjs": "^29.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.2",
+    "@rollup/plugin-typescript": "^12.3.1",
+    "@types/node": "^20.19.43",
+    "rollup": "^4.68.2",
+    "tslib": "^2.9.1",
+    "typescript": "^5.9.3"
+  }
+}

@@ -1,0 +1,151 @@
+:root {
+	--bg: #2d2d2d;
+	--field: #3d3d3d;
+	--field-border: #4a4a4a;
+	--text: #d8d8d8;
+	--muted: #9a9a9a;
+	--accent: #38bdf8;
+	--warning-bg: #4a3a12;
+	--warning-text: #fcd34d;
+	--error-bg: #4a1d1d;
+	--error-text: #fca5a5;
+	--ok-text: #86efac;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	margin: 0;
+	padding: 8px 12px 16px;
+	background: var(--bg);
+	color: var(--text);
+	font: 12px/1.4 "Segoe UI", Arial, sans-serif;
+}
+
+.row {
+	display: grid;
+	grid-template-columns: 96px 1fr;
+	align-items: center;
+	gap: 8px;
+	margin: 6px 0;
+}
+
+.row > label {
+	color: var(--muted);
+	text-align: right;
+}
+
+select,
+input[type="text"],
+textarea {
+	width: 100%;
+	background: var(--field);
+	color: var(--text);
+	border: 1px solid var(--field-border);
+	border-radius: 3px;
+	padding: 4px 6px;
+	font: inherit;
+}
+
+textarea {
+	min-height: 180px;
+	font-family: Consolas, "Courier New", monospace;
+	font-size: 11px;
+	resize: vertical;
+}
+
+button {
+	background: var(--field);
+	color: var(--text);
+	border: 1px solid var(--field-border);
+	border-radius: 3px;
+	padding: 4px 10px;
+	font: inherit;
+	cursor: pointer;
+}
+
+button:hover {
+	border-color: var(--accent);
+}
+
+.buttons {
+	display: flex;
+	gap: 6px;
+	flex-wrap: wrap;
+	margin: 6px 0 0 104px;
+}
+
+.message {
+	margin: 8px 0 8px 104px;
+	padding: 6px 8px;
+	border-radius: 3px;
+}
+
+.message.warning {
+	background: var(--warning-bg);
+	color: var(--warning-text);
+}
+
+.message.error {
+	background: var(--error-bg);
+	color: var(--error-text);
+}
+
+.message.info {
+	color: var(--muted);
+	padding: 0;
+}
+
+.message.ok {
+	color: var(--ok-text);
+	padding: 0;
+}
+
+.hint {
+	color: var(--muted);
+}
+
+h3 {
+	margin: 16px 0 4px;
+	font-size: 12px;
+	font-weight: 600;
+	color: var(--text);
+	border-bottom: 1px solid var(--field-border);
+	padding-bottom: 3px;
+}
+
+details > summary {
+	cursor: pointer;
+	margin-top: 16px;
+	color: var(--text);
+	font-weight: 600;
+}
+
+.grid {
+	display: grid;
+	gap: 4px;
+	margin: 6px 0 0 104px;
+}
+
+.grid select {
+	padding: 2px;
+	font-size: 10px;
+	height: 38px;
+}
+
+.grid .back {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 38px;
+	border: 1px dashed var(--field-border);
+	border-radius: 3px;
+	color: var(--muted);
+	font-size: 10px;
+}
+
+code {
+	color: var(--accent);
+}

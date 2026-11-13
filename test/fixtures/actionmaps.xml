@@ -1,0 +1,24 @@
+<ActionMaps>
+ <ActionProfiles version="1" optionsVersion="2" rebindVersion="2" profileName="default">
+  <options type="keyboard" instance="1"/>
+  <modifiers />
+  <actionmap name="spaceship_general">
+   <action name="v_close_all_doors">
+    <rebind input="kb1_ralt+np_1"/>
+   </action>
+   <action name="v_open_all_doors">
+    <rebind input="kb1_ralt+np_0"/>
+   </action>
+  </actionmap>
+  <actionmap name="lights_controller">
+   <action name="v_lights">
+    <rebind input="kb1_ "/>
+   </action>
+  </actionmap>
+  <actionmap name="spaceship_movement">
+   <action name="v_afterburner">
+    <rebind input="js2_button2"/>
+   </action>
+  </actionmap>
+ </ActionProfiles>
+</ActionMaps>

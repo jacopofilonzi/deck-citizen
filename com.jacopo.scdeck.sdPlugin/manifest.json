@@ -1,0 +1,104 @@
+{
+	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
+	"Name": "Star Citizen",
+	"Version": "0.1.0.0",
+	"Author": "Jacopo",
+	"Description": "Control Star Citizen from Stream Deck using your own keybinds: doors, lights, power, shields, landing gear, quantum and more, with menus that adapt to your device.",
+	"Category": "Star Citizen",
+	"CategoryIcon": "imgs/category",
+	"Icon": "imgs/plugin",
+	"CodePath": "bin/plugin.js",
+	"SDKVersion": 3,
+	"Software": {
+		"MinimumVersion": "7.1"
+	},
+	"OS": [
+		{
+			"Platform": "windows",
+			"MinimumVersion": "10"
+		}
+	],
+	"Nodejs": {
+		"Version": "20",
+		"Debug": "enabled"
+	},
+	"UUID": "com.jacopo.scdeck",
+	"Actions": [
+		{
+			"Name": "Star Citizen",
+			"UUID": "com.jacopo.scdeck.action",
+			"Icon": "imgs/action",
+			"Tooltip": "Run a Star Citizen function or open a group's menu.",
+			"PropertyInspectorPath": "ui/sc-action.html",
+			"Controllers": [
+				"Keypad",
+				"Encoder"
+			],
+			"Encoder": {
+				"layout": "$X1",
+				"Icon": "imgs/key",
+				"TriggerDescription": {
+					"Rotate": "Rotate right / left",
+					"Push": "Press"
+				}
+			},
+			"States": [
+				{
+					"Image": "imgs/key",
+					"ShowTitle": true
+				}
+			],
+			"SupportedInMultiActions": true
+		},
+		{
+			"Name": "Menu Slot",
+			"UUID": "com.jacopo.scdeck.menu-slot",
+			"Icon": "imgs/action",
+			"Tooltip": "Used by the Star Citizen menu profiles.",
+			"Controllers": [
+				"Keypad"
+			],
+			"VisibleInActionsList": false,
+			"UserTitleEnabled": false,
+			"SupportedInMultiActions": false,
+			"States": [
+				{
+					"Image": "imgs/blank",
+					"ShowTitle": false
+				}
+			]
+		}
+	],
+	"Profiles": [
+		{
+			"Name": "profiles/SC Menu",
+			"DeviceType": 0,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		},
+		{
+			"Name": "profiles/SC Menu Mini",
+			"DeviceType": 1,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		},
+		{
+			"Name": "profiles/SC Menu XL",
+			"DeviceType": 2,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		},
+		{
+			"Name": "profiles/SC Menu Plus",
+			"DeviceType": 7,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		},
+		{
+			"Name": "profiles/SC Menu Neo",
+			"DeviceType": 9,
+			"Readonly": false,
+			"DontAutoSwitchWhenInstalled": true
+		}
+	]
+}

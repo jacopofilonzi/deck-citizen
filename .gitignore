@@ -1,0 +1,8 @@
+node_modules/
+build/
+*.sdPlugin/bin/
+*.sdPlugin/node_modules/
+*.sdPlugin/data/
+*.sdPlugin/logs/
+*.sdPlugin/profiles/
+*.streamDeckPlugin
