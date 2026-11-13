@@ -6,3 +6,4 @@ build/
 *.sdPlugin/logs/
 *.sdPlugin/profiles/
 *.streamDeckPlugin
+dist/

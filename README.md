@@ -13,10 +13,29 @@ npx streamdeck link it.jacopofilonzi.deck-citizen.sdPlugin   # once: install the
 npm run watch        # rebuild and restart the plugin on every change
 npm test             # unit tests (Node 24+, runs TypeScript directly)
 npm run validate     # check manifest.json
-npm run pack         # build a .streamDeckPlugin file
+npm run pack         # release package: dist/it.jacopofilonzi.deck-citizen.streamDeckPlugin
 ```
 
 Plugin logs: `it.jacopofilonzi.deck-citizen.sdPlugin/logs/`.
+
+Development builds include debug deep links (`streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/...`,
+see `src/plugin.ts`); they sit behind the build-time constant `__DEV__` and are left out of
+release builds. `npm run pack` builds the release in `build/` (the linked dev folder is not
+touched), takes the version from `package.json`, turns off the Node debugger and packs it.
+To install the package, remove the dev link first (`npx streamdeck unlink it.jacopofilonzi.deck-citizen`):
+both use the same plugin id.
+
+## CI and releases
+
+`.github/workflows/build.yml` runs on GitHub (Windows): every push and pull request is
+type-checked, tested, validated and packaged (the package is kept as a build artifact).
+Pushing a tag `vX.Y.Z` also creates a GitHub release with the `.streamDeckPlugin` attached;
+the tag sets the plugin version (`X.Y.Z.0`), so `package.json` does not need a bump:
+
+```sh
+git tag v0.2.0
+git push origin v0.2.0
+```
 
 ## How it works
 

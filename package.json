@@ -10,7 +10,7 @@
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
     "validate": "streamdeck validate it.jacopofilonzi.deck-citizen.sdPlugin",
-    "pack": "npm run build && streamdeck pack it.jacopofilonzi.deck-citizen.sdPlugin --force"
+    "pack": "node tools/pack.mjs"
   },
   "dependencies": {
     "@elgato/streamdeck": "^3.0.4",

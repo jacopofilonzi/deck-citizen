@@ -8,7 +8,9 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "it.jacopofilonzi.deck-citizen.sdPlugin";
+/** Release build (see tools/pack.mjs): no development aids, written to a staging folder. */
+const isRelease = process.env.RELEASE === "true";
+const sdPlugin = process.env.PLUGIN_OUT ?? "it.jacopofilonzi.deck-citizen.sdPlugin";
 
 /**
  * Packages that cannot be bundled (native code). They are kept external and
@@ -46,7 +48,11 @@ function copyRuntimeFiles() {
 					// Koffi ships its C++ sources; the plugin only needs the JS loader and the binary.
 					filter: (src, dest) => {
 						const relative = path.relative(from, src);
-						return !/^(vendor|doc|lib[\\/]native)([\\/]|$)/.test(relative) && !/\.(cc|hh|h|c|S|asm|inc)$|CMakeLists\.txt$/.test(relative) && !isUpToDate(src, dest);
+						return (
+							!/^(vendor|doc|lib[\\/]native)([\\/]|$)/.test(relative) &&
+							!/\.(cc|hh|h|c|S|asm|inc|lib|d\.ts)$|CMakeLists\.txt$|(CHANGELOG|README)\.md$/.test(relative) &&
+							!isUpToDate(src, dest)
+						);
 					},
 				});
 			}
@@ -78,6 +84,13 @@ const config = {
 			name: "watch-externals",
 			buildStart() {
 				this.addWatchFile(`${sdPlugin}/manifest.json`);
+			},
+		},
+		{
+			// Build-time constant: release code drops the development aids.
+			name: "define-dev-flag",
+			transform(code, id) {
+				return id.endsWith(".ts") && code.includes("__DEV__") ? code.replaceAll("__DEV__", String(!isRelease)) : null;
 			},
 		},
 		typescript({

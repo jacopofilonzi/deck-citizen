@@ -20,28 +20,30 @@ try {
 	streamDeck.logger.error(`Initialization failed: ${(err as Error).message}`);
 }
 
-// Development aids:
+// Development aids (left out of release builds):
 // - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/profile?name=SC%20Menu` switches the
 //   first connected device to a bundled profile, to test profile installs.
 // - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/editor` opens the group editor.
-streamDeck.system.onDidReceiveDeepLink((ev) => {
-	if (ev.url.path === "/debug/editor") {
-		// Logged only here (development aid): lets tools drive the editor page.
-		void editorServer.open().then((url) => streamDeck.logger.info(`Debug: editor at ${url}`));
-		return;
-	}
-	if (ev.url.path !== "/debug/profile") {
-		return;
-	}
-	const device = [...streamDeck.devices].find((d) => d.isConnected);
-	const name = ev.url.queryParameters.get("name");
-	if (device) {
-		streamDeck.logger.info(`Debug: switching ${device.id} to ${name ?? "previous profile"}`);
-		void streamDeck.profiles.switchToProfile(device.id, name ? `profiles/${name}` : undefined);
-	}
-});
+if (__DEV__) {
+	streamDeck.system.onDidReceiveDeepLink((ev) => {
+		if (ev.url.path === "/debug/editor") {
+			// Logged only here (development aid): lets tools drive the editor page.
+			void editorServer.open().then((url) => streamDeck.logger.info(`Debug: editor at ${url}`));
+			return;
+		}
+		if (ev.url.path !== "/debug/profile") {
+			return;
+		}
+		const device = [...streamDeck.devices].find((d) => d.isConnected);
+		const name = ev.url.queryParameters.get("name");
+		if (device) {
+			streamDeck.logger.info(`Debug: switching ${device.id} to ${name ?? "previous profile"}`);
+			void streamDeck.profiles.switchToProfile(device.id, name ? `profiles/${name}` : undefined);
+		}
+	});
+}
 
-const shutdown =(): void => {
+const shutdown = (): void => {
 	void app.executor.releaseAll();
 };
 process.on("SIGINT", shutdown);
