@@ -31,6 +31,16 @@ touched), takes the version from `package.json`, turns off the Node debugger and
 To install the package, remove the dev link first (`npx streamdeck unlink it.jacopofilonzi.deck-citizen`):
 both use the same plugin id.
 
+## Updates
+
+The plugin is not on the Elgato Marketplace, so it checks GitHub itself
+(`src/update/update-checker.ts`, release builds only): 15 s after start and then daily it
+reads the latest release of this repository. A newer version is announced once with a
+Windows notification (sent through PowerShell) and stays as a banner in the key settings,
+whose Install button downloads the package and opens it (Stream Deck asks to confirm).
+"Check GitHub for new versions" in Plugin settings turns it off. In development builds
+the deep link `.../debug/update` runs the check as if 0.0.0 were installed.
+
 ## CI and releases
 
 `.github/workflows/build.yml` runs on GitHub (Windows): every push and pull request is

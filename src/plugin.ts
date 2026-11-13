@@ -4,6 +4,7 @@ import { ScDeckAction } from "./actions/sc-action.ts";
 import { MenuSlotAction } from "./actions/menu-slot.ts";
 import { app } from "./app.ts";
 import { editorServer } from "./editor/editor-server.ts";
+import { updates } from "./update/update-checker.ts";
 
 streamDeck.logger.setLevel("info");
 
@@ -20,12 +21,20 @@ try {
 	streamDeck.logger.error(`Initialization failed: ${(err as Error).message}`);
 }
 
+updates.start();
+
 // Development aids (left out of release builds):
 // - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/profile?name=SC%20Menu` switches the
 //   first connected device to a bundled profile, to test profile installs.
 // - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/editor` opens the group editor.
+// - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/update` checks for updates as if
+//   version 0.0.0 were installed (notification and key settings banner).
 if (__DEV__) {
 	streamDeck.system.onDidReceiveDeepLink((ev) => {
+		if (ev.url.path === "/debug/update") {
+			void updates.check("0.0.0");
+			return;
+		}
 		if (ev.url.path === "/debug/editor") {
 			// Logged only here (development aid): lets tools drive the editor page.
 			void editorServer.open().then((url) => streamDeck.logger.info(`Debug: editor at ${url}`));

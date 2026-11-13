@@ -26,6 +26,10 @@ export type GlobalSettings = {
 	channel?: string;
 	/** User-defined groups, in the JSON format of the plugin's group data. */
 	customGroups?: JsonValue;
+	/** Look for new releases on GitHub (default: on). */
+	checkUpdates?: boolean;
+	/** Last version announced with a notification, so each one is announced once. */
+	notifiedVersion?: string;
 };
 
 /** Folder of the .sdPlugin (the bundle lives in its bin/ folder). */

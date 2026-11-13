@@ -8,6 +8,7 @@ import { KeybindResolver } from "../src/keybinds/resolver.ts";
 import type { BindLayer } from "../src/keybinds/types.ts";
 import { buildMenuPages, fromDeck, toDeck } from "../src/menu/grid.ts";
 import { iconSvg, isIconName } from "../src/render/icons.ts";
+import { isNewer, parseVersion } from "../src/update/version.ts";
 
 const layer: BindLayer = {
 	name: "test",
@@ -165,5 +166,17 @@ describe("menu grid", () => {
 	it("prefers a per-key layout", () => {
 		const [page] = buildMenuPages(doors, size, { x2y2: "lock" });
 		assert.deepEqual([...page!.keys()].sort(), ["x0y0", "x2y2"]);
+	});
+});
+
+describe("update versions", () => {
+	it("compares release tags with the installed manifest version", () => {
+		assert.deepEqual(parseVersion("v0.2.0"), [0, 2, 0]);
+		assert.deepEqual(parseVersion("0.1.0.0"), [0, 1, 0]);
+		assert.equal(isNewer("v0.2.0", "0.1.0.0"), true);
+		assert.equal(isNewer("v0.1.0", "0.1.0.0"), false);
+		assert.equal(isNewer("v0.10.0", "0.9.5.0"), true);
+		assert.equal(isNewer("v1.0.0", "1.0.1.0"), false);
+		assert.equal(isNewer("nightly", "0.1.0.0"), false);
 	});
 });

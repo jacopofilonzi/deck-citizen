@@ -20,6 +20,7 @@ import type { Step } from "../catalog/catalog.ts";
 import { groupToJson } from "../catalog/groups.ts";
 import type { FunctionRef, MenuLayout } from "../catalog/types.ts";
 import { editorServer } from "../editor/editor-server.ts";
+import { updates } from "../update/update-checker.ts";
 import { menus } from "../menu/menu-controller.ts";
 import { explainStatus, functionImage } from "../render/function-image.ts";
 import { renderKey } from "../render/key-image.ts";
@@ -54,7 +55,10 @@ type PiRequest =
 	| { type: "setGame"; gameRoot: string; channel: string }
 	| { type: "setCustomGroups"; json: string }
 	| { type: "reloadBinds" }
-	| { type: "openEditor" };
+	| { type: "openEditor" }
+	| { type: "installUpdate" }
+	| { type: "openRelease" }
+	| { type: "setCheckUpdates"; enabled: boolean };
 
 /**
  * The single "Star Citizen" action. Configured with a group and either one of its
@@ -167,6 +171,26 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 			case "openEditor":
 				await editorServer.open();
 				return;
+			case "installUpdate":
+				try {
+					await updates.install();
+				} catch (err) {
+					streamDeck.logger.error(`Update install failed: ${(err as Error).message}`);
+					await streamDeck.ui.sendToPropertyInspector({ type: "updateResult", error: (err as Error).message });
+				}
+				return;
+			case "openRelease":
+				// Only the release page found by the update check, never a URL from the page.
+				if (updates.available) {
+					await streamDeck.system.openUrl(updates.available.url);
+				}
+				return;
+			case "setCheckUpdates":
+				await app.updateSettings({ checkUpdates: request.enabled === true });
+				if (request.enabled) {
+					await updates.check();
+				}
+				break;
 			default:
 				return;
 		}
@@ -284,6 +308,8 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 			customGroups: JSON.stringify(app.settings.customGroups ?? [], null, 2),
 			builtinGroups: JSON.stringify(catalog.groups.filter((group) => !group.custom).map(groupToJson), null, 2),
 			customGroupsError: app.customGroupsError ?? null,
+			update: updates.available ?? null,
+			checkUpdates: app.settings.checkUpdates !== false,
 		});
 	}
 }

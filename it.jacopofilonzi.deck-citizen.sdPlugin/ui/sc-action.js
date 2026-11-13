@@ -82,6 +82,9 @@ function onPluginMessage(payload) {
 	if (payload?.type === "state") {
 		state = payload;
 		render();
+	} else if (payload?.type === "updateResult") {
+		updateError = payload.error ? `Could not install: ${payload.error}` : null;
+		render();
 	} else if (payload?.type === "customGroupsResult") {
 		customResult = payload.error ? { error: payload.error } : { ok: "Custom groups saved." };
 		if (!payload.error) {
@@ -189,10 +192,25 @@ function render() {
 		main = document.getElementById("main");
 	}
 	main.replaceChildren(
+		...(state.update ? [updateBanner(state.update)] : []),
 		...(state.game.warning ? [message("warning", state.game.warning)] : []),
 		...(state.controller === "Encoder" ? renderDial() : renderKey()),
 	);
 	updateGlobal();
+}
+
+let updateError = null;
+
+function updateBanner(update) {
+	return el("div", { class: "message update" }, [
+		el("strong", { textContent: `Update available: ${update.version}` }),
+		` (you have ${update.current}). `,
+		el("div", { class: "buttons", style: "margin: 6px 0 0" }, [
+			el("button", { textContent: "Install", onclick: () => ((updateError = null), toPlugin({ type: "installUpdate" })) }),
+			el("button", { textContent: "What's new", onclick: () => toPlugin({ type: "openRelease" }) }),
+		]),
+		el("p", { class: "hint", style: "margin: 6px 0 0", textContent: updateError ?? "Install downloads the new version; Stream Deck then asks you to confirm." }),
+	]);
 }
 
 function renderKey() {
@@ -352,6 +370,11 @@ function renderGlobal() {
 			el("button", { textContent: "Reload binds", onclick: () => toPlugin({ type: "reloadBinds" }) }),
 		]),
 		el("div", { id: "gameInfo", class: "message info" }),
+		el("h3", { textContent: "Updates" }),
+		el("label", { class: "check", style: "margin-left: 0" }, [
+			el("input", { type: "checkbox", id: "checkUpdates", onchange: (e) => toPlugin({ type: "setCheckUpdates", enabled: e.target.checked }) }),
+			" Check GitHub for new versions (once a day)",
+		]),
 		el("h3", { textContent: "Custom groups" }),
 		el("div", { class: "buttons", style: "margin-left: 0" }, [
 			el("button", { textContent: "Open group editor", onclick: () => toPlugin({ type: "openEditor" }) }),
@@ -401,6 +424,7 @@ function updateGlobal() {
 	if (document.activeElement !== channel) {
 		channel.value = state.game.channel;
 	}
+	document.getElementById("checkUpdates").checked = state.checkUpdates;
 	document.getElementById("gameInfo").textContent =
 		`Game: ${state.game.installedBuild ?? "not found"} · Default binds: ${state.game.defaultsBuild ?? "not found"} · Your rebinds: ${state.game.userBinds}`;
 
