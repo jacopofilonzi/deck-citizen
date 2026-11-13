@@ -56,7 +56,9 @@ async function stopStreamDeck() {
 async function startStreamDeck() {
 	if (isRunning()) return;
 	console.log("Starting Stream Deck…");
-	spawn(STREAM_DECK_EXE, [], { detached: true, stdio: "ignore" }).unref();
+	// Started through Explorer, so Stream Deck does not inherit this console's handles
+	// (a terminal or pipe would otherwise wait for Stream Deck to exit).
+	spawn("explorer.exe", [STREAM_DECK_EXE], { detached: true, stdio: "ignore" }).unref();
 	await sleep(8000);
 }
 
@@ -130,7 +132,7 @@ async function switchProd(local) {
 	const startedAt = Date.now();
 	await startStreamDeck();
 	console.log("Opening the package: confirm the installation in Stream Deck.");
-	sh(`start "" "${file}"`);
+	spawn("explorer.exe", [file], { detached: true, stdio: "ignore" }).unref();
 
 	// Wait for the user to confirm, then for the plugin to start.
 	for (let i = 0; i < 120; i++) {
