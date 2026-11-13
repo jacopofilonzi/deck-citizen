@@ -16,9 +16,9 @@ jobs:
     # The plugin is Windows only (SendInput through koffi), so is the build.
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: 24
           cache: npm
@@ -26,8 +26,7 @@ jobs:
       - run: npm ci
       - run: npm run typecheck
       - run: npm test
-      - run: npm run validate
-
+      # Packaging also validates the manifest (on the built plugin, with bundle and profiles).
       - name: Package
         shell: bash
         run: |
@@ -36,7 +35,7 @@ jobs:
           fi
           npm run pack
 
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v5
         with:
           name: streamDeckPlugin
           path: dist/*.streamDeckPlugin
@@ -49,7 +48,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v5
         with:
           name: streamDeckPlugin
           path: dist

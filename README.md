@@ -28,7 +28,7 @@ both use the same plugin id.
 ## CI and releases
 
 `.github/workflows/build.yml` runs on GitHub (Windows): every push and pull request is
-type-checked, tested, validated and packaged (the package is kept as a build artifact).
+type-checked, tested and packaged (packing validates the manifest) (the package is kept as a build artifact).
 Pushing a tag `vX.Y.Z` also creates a GitHub release with the `.streamDeckPlugin` attached;
 the tag sets the plugin version (`X.Y.Z.0`), so `package.json` does not need a bump:
 
