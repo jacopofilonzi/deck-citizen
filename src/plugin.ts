@@ -21,9 +21,9 @@ try {
 }
 
 // Development aids:
-// - `streamdeck://plugins/message/com.jacopo.scdeck/debug/profile?name=SC%20Menu` switches the
+// - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/profile?name=SC%20Menu` switches the
 //   first connected device to a bundled profile, to test profile installs.
-// - `streamdeck://plugins/message/com.jacopo.scdeck/debug/editor` opens the group editor.
+// - `streamdeck://plugins/message/it.jacopofilonzi.deck-citizen/debug/editor` opens the group editor.
 streamDeck.system.onDidReceiveDeepLink((ev) => {
 	if (ev.url.path === "/debug/editor") {
 		void editorServer.open();

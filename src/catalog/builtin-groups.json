@@ -156,6 +156,212 @@
 				{ "id": "ports_lock", "label": "Lock Ports", "icon": "lock", "action": "spaceship_general/v_lock_all_ports" },
 				{ "id": "ports_unlock", "label": "Unlock Ports", "icon": "unlock", "action": "spaceship_general/v_unlock_all_ports" }
 			]
+		},
+		{
+			"id": "weapons",
+			"label": "Weapons",
+			"color": "#ef4444",
+			"icon": "weapons",
+			"functions": [
+				{ "id": "gimbal_toggle", "label": "Gimbal Toggle", "icon": "gimbal", "action": "spaceship_weapons/v_weapon_gimbals_state_toggle" },
+				{ "id": "gimbal_lock", "label": "Gimbal Lock", "icon": "lock", "action": "spaceship_weapons/v_weapon_gimbals_state_set_locked" },
+				{ "id": "gimbal_unlock", "label": "Gimbal Unlock", "icon": "unlock", "action": "spaceship_weapons/v_weapon_gimbals_state_set_unlocked" },
+				{ "id": "aim_cycle", "label": "Aim Mode", "icon": "aim", "action": "spaceship_weapons/v_weapon_aim_type_cycle" },
+				{ "id": "staggered", "label": "Staggered Fire", "icon": "staggered", "action": "spaceship_weapons/v_weapon_staggered_fire_toggle" },
+				{ "id": "preset_prev", "label": "Prev Preset", "icon": "chevron-left", "action": "spaceship_weapons/v_weapon_preset_prev" },
+				{ "id": "preset_next", "label": "Next Preset", "icon": "chevron-right", "action": "spaceship_weapons/v_weapon_preset_next" },
+				{ "id": "convergence_down", "label": "Convergence -", "icon": "convergence", "action": "spaceship_weapons/v_weapon_convergence_distance_rel_decrease" },
+				{ "id": "convergence_reset", "label": "Convergence Reset", "icon": "reset", "action": "spaceship_weapons/v_weapon_convergence_distance_set_default" },
+				{ "id": "convergence_up", "label": "Convergence +", "icon": "convergence", "action": "spaceship_weapons/v_weapon_convergence_distance_rel_increase" },
+				{ "id": "guns1", "label": "Guns Group 1", "icon": "num-1", "action": "spaceship_weapons/v_weapon_preset_guns0" },
+				{ "id": "guns2", "label": "Guns Group 2", "icon": "num-2", "action": "spaceship_weapons/v_weapon_preset_guns1" },
+				{ "id": "guns3", "label": "Guns Group 3", "icon": "num-3", "action": "spaceship_weapons/v_weapon_preset_guns2" },
+				{ "id": "guns4", "label": "Guns Group 4", "icon": "num-4", "action": "spaceship_weapons/v_weapon_preset_guns3" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "gimbal_toggle", "x1y2": "gimbal_lock", "x2y2": "gimbal_unlock", "x3y2": "aim_cycle", "x4y2": "staggered", "x0y1": "preset_prev", "x1y1": "preset_next", "x2y1": "convergence_down", "x3y1": "convergence_reset", "x4y1": "convergence_up", "x1y0": "guns1", "x2y0": "guns2", "x3y0": "guns3", "x4y0": "guns4" }
+			}
+		},
+		{
+			"id": "missiles",
+			"label": "Missiles",
+			"color": "#fb7185",
+			"icon": "missile",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "mode", "label": "Missile Mode", "icon": "missile", "action": "seat_general/v_toggle_missile_mode" },
+				{ "id": "launch", "label": "Launch", "icon": "missile", "action": "spaceship_missiles/v_weapon_toggle_launch_missile" },
+				{ "id": "type_prev", "label": "Prev Type", "icon": "chevron-left", "action": "spaceship_missiles/v_weapon_cycle_missile_back" },
+				{ "id": "type_next", "label": "Next Type", "icon": "chevron-right", "action": "spaceship_missiles/v_weapon_cycle_missile_fwd" },
+				{ "id": "armed_down", "label": "Armed -", "icon": "minus", "action": "spaceship_missiles/v_weapon_decrease_max_missiles" },
+				{ "id": "armed_reset", "label": "Armed Reset", "icon": "reset", "action": "spaceship_missiles/v_weapon_reset_max_missiles" },
+				{ "id": "armed_up", "label": "Armed +", "icon": "plus", "action": "spaceship_missiles/v_weapon_increase_max_missiles" },
+				{ "id": "cinematic", "label": "Missile Camera", "icon": "camera", "action": "spaceship_missiles/v_weapon_launch_missile_cinematic" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "mode", "x1y2": "type_prev", "x2y2": "type_next", "x4y2": "launch", "x1y1": "armed_down", "x2y1": "armed_reset", "x3y1": "armed_up", "x4y0": "cinematic" }
+			}
+		},
+		{
+			"id": "countermeasures",
+			"label": "Defense",
+			"color": "#f59e0b",
+			"icon": "decoy",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "decoy", "label": "Decoy", "icon": "decoy", "action": "spaceship_defensive/v_weapon_countermeasure_decoy_launch" },
+				{ "id": "noise", "label": "Noise", "icon": "noise", "action": "spaceship_defensive/v_weapon_countermeasure_noise_launch" },
+				{ "id": "panic", "label": "Panic Decoys", "icon": "decoy", "action": "spaceship_defensive/v_weapon_countermeasure_decoy_launch_panic" },
+				{ "id": "burst_down", "label": "Burst -", "icon": "minus", "action": "spaceship_defensive/v_weapon_countermeasure_decoy_burst_decrease" },
+				{ "id": "burst_up", "label": "Burst +", "icon": "plus", "action": "spaceship_defensive/v_weapon_countermeasure_decoy_burst_increase" }
+			],
+			"layouts": {
+				"5x3": { "x1y1": "decoy", "x2y1": "noise", "x3y1": "panic", "x1y0": "burst_down", "x2y0": "burst_up" }
+			}
+		},
+		{
+			"id": "targeting",
+			"label": "Targeting",
+			"color": "#d946ef",
+			"icon": "target",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "reticle", "label": "Under Reticle", "icon": "target", "action": "spaceship_targeting_advanced/v_target_under_reticle" },
+				{ "id": "hostile_prev", "label": "Prev Hostile", "icon": "chevron-left", "action": "spaceship_targeting_advanced/v_target_cycle_hostile_back" },
+				{ "id": "hostile_closest", "label": "Closest Hostile", "icon": "reset", "action": "spaceship_targeting_advanced/v_target_cycle_hostile_reset" },
+				{ "id": "hostile_next", "label": "Next Hostile", "icon": "chevron-right", "action": "spaceship_targeting_advanced/v_target_cycle_hostile_fwd" },
+				{ "id": "unlock", "label": "Unlock Target", "icon": "target-off", "action": "spaceship_targeting/v_target_unlock" },
+				{ "id": "attacker_next", "label": "Next Attacker", "icon": "chevron-right", "action": "spaceship_targeting_advanced/v_target_cycle_attacker_fwd" },
+				{ "id": "sub_prev", "label": "Prev Subtarget", "icon": "chevron-left", "action": "spaceship_targeting_advanced/v_target_cycle_subitem_back" },
+				{ "id": "sub_main", "label": "Main Target", "icon": "subtarget", "action": "spaceship_targeting_advanced/v_target_cycle_subitem_reset" },
+				{ "id": "sub_next", "label": "Next Subtarget", "icon": "chevron-right", "action": "spaceship_targeting_advanced/v_target_cycle_subitem_fwd" },
+				{ "id": "pin", "label": "Pin Target", "icon": "pin", "action": "spaceship_targeting/v_target_pin_selected" },
+				{ "id": "unpin_all", "label": "Clear Pins", "icon": "pin-off", "action": "spaceship_targeting/v_target_remove_all_pins" },
+				{ "id": "auto", "label": "Auto Targeting", "icon": "auto-target", "action": "spaceship_targeting/v_auto_targeting_toggle_long" },
+				{ "id": "look_ahead", "label": "Look Ahead", "icon": "eye", "action": "spaceship_targeting/v_look_ahead_enable" },
+				{ "id": "hail", "label": "Hail", "icon": "hail", "action": "spaceship_target_hailing/v_target_hail" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "reticle", "x1y2": "hostile_prev", "x2y2": "hostile_closest", "x3y2": "hostile_next", "x4y2": "unlock", "x0y1": "attacker_next", "x1y1": "sub_prev", "x2y1": "sub_main", "x3y1": "sub_next", "x4y1": "pin", "x1y0": "auto", "x2y0": "look_ahead", "x3y0": "hail", "x4y0": "unpin_all" }
+			}
+		},
+		{
+			"id": "scanning",
+			"label": "Scanning",
+			"color": "#0ea5e9",
+			"icon": "scan",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "mode", "label": "Scan Mode", "icon": "scan", "action": "seat_general/v_toggle_scan_mode" },
+				{ "id": "ping", "label": "Ping", "icon": "ping", "action": "spaceship_radar/v_invoke_ping" },
+				{ "id": "scan", "label": "Scan", "icon": "scan", "action": "spaceship_scanning/v_scanning_trigger_scan" },
+				{ "id": "angle_down", "label": "Narrow Angle", "icon": "cone-narrow", "action": "spaceship_scanning/v_dec_scan_focus_level" },
+				{ "id": "angle_up", "label": "Wide Angle", "icon": "cone-wide", "action": "spaceship_scanning/v_inc_scan_focus_level" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "mode", "x1y1": "ping", "x2y1": "scan", "x3y1": "angle_down", "x4y1": "angle_up" }
+			}
+		},
+		{
+			"id": "mining",
+			"label": "Mining",
+			"color": "#84cc16",
+			"icon": "mining",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "mode", "label": "Mining Mode", "icon": "mining", "action": "seat_general/v_toggle_mining_mode" },
+				{ "id": "fire", "label": "Fire Laser", "icon": "laser", "action": "spaceship_mining/v_toggle_mining_laser_fire" },
+				{ "id": "switch", "label": "Switch Laser", "icon": "swap", "action": "spaceship_mining/v_toggle_mining_laser_type" },
+				{ "id": "jettison", "label": "Jettison Cargo", "icon": "jettison", "action": "spaceship_mining/v_jettison_volatile_cargo" },
+				{ "id": "power_down", "label": "Power -", "icon": "minus", "action": "spaceship_mining/v_decrease_mining_throttle", "fallback": "spaceship_mining/v_increase_mining_throttle", "wheel": "down" },
+				{ "id": "power_up", "label": "Power +", "icon": "plus", "action": "spaceship_mining/v_increase_mining_throttle", "wheel": "up" },
+				{ "id": "beam", "label": "Beam High / Low", "icon": "laser", "action": "spaceship_mining/v_mining_use_permanent_modifier" },
+				{ "id": "module1", "label": "Module 1", "icon": "num-1", "action": "spaceship_mining/v_mining_use_consumable1" },
+				{ "id": "module2", "label": "Module 2", "icon": "num-2", "action": "spaceship_mining/v_mining_use_consumable2" },
+				{ "id": "module3", "label": "Module 3", "icon": "num-3", "action": "spaceship_mining/v_mining_use_consumable3" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "mode", "x1y2": "fire", "x2y2": "switch", "x4y2": "jettison", "x1y1": "power_down", "x2y1": "power_up", "x3y1": "beam", "x1y0": "module1", "x2y0": "module2", "x3y0": "module3" }
+			}
+		},
+		{
+			"id": "salvage",
+			"label": "Salvage",
+			"color": "#c2410c",
+			"icon": "salvage",
+			"stayInMenu": true,
+			"functions": [
+				{ "id": "mode", "label": "Salvage Mode", "icon": "salvage", "action": "seat_general/v_toggle_salvage_mode" },
+				{ "id": "fire_left", "label": "Fire Left", "icon": "salvage", "action": "spaceship_salvage/v_salvage_toggle_fire_left" },
+				{ "id": "fire_focused", "label": "Fire Focused", "icon": "laser", "action": "spaceship_salvage/v_salvage_toggle_fire_focused" },
+				{ "id": "fire_right", "label": "Fire Right", "icon": "salvage", "action": "spaceship_salvage/v_salvage_toggle_fire_right" },
+				{ "id": "gimbal", "label": "Gimbal Toggle", "icon": "gimbal", "action": "spaceship_salvage/v_salvage_toggle_gimbal_mode" },
+				{ "id": "focus_all", "label": "Focus All", "icon": "target", "action": "spaceship_salvage/v_salvage_focus_all_heads" },
+				{ "id": "focus_left", "label": "Focus Left", "icon": "arrow-left", "action": "spaceship_salvage/v_salvage_focus_left" },
+				{ "id": "fire_fracture", "label": "Fire Fracture", "icon": "fracture", "action": "spaceship_salvage/v_salvage_toggle_fire_fracture" },
+				{ "id": "focus_right", "label": "Focus Right", "icon": "arrow-right", "action": "spaceship_salvage/v_salvage_focus_right" },
+				{ "id": "gimbal_reset", "label": "Gimbal Reset", "icon": "reset", "action": "spaceship_salvage/v_salvage_reset_gimbal" },
+				{ "id": "spacing_down", "label": "Spacing -", "icon": "contract", "action": "spaceship_salvage/v_salvage_decrease_beam_spacing", "fallback": "spaceship_salvage/v_salvage_beam_spacing_rel", "wheel": "down" },
+				{ "id": "spacing_up", "label": "Spacing +", "icon": "expand", "action": "spaceship_salvage/v_salvage_increase_beam_spacing", "fallback": "spaceship_salvage/v_salvage_beam_spacing_rel", "wheel": "up" },
+				{ "id": "axis", "label": "Beam Axis", "icon": "swap", "action": "spaceship_salvage/v_salvage_toggle_beam_spacing_axis" },
+				{ "id": "fire_disintegrate", "label": "Fire Disintegrate", "icon": "disintegrate", "action": "spaceship_salvage/v_salvage_toggle_fire_disintegrate" }
+			],
+			"layouts": {
+				"5x3": { "x0y2": "mode", "x1y2": "fire_left", "x2y2": "fire_focused", "x3y2": "fire_right", "x4y2": "gimbal", "x0y1": "focus_all", "x1y1": "focus_left", "x2y1": "fire_fracture", "x3y1": "focus_right", "x4y1": "gimbal_reset", "x1y0": "spacing_down", "x2y0": "spacing_up", "x3y0": "axis", "x4y0": "fire_disintegrate" }
+			}
+		},
+		{
+			"id": "modes",
+			"label": "Modes",
+			"color": "#10b981",
+			"icon": "modes",
+			"functions": [
+				{ "id": "flight", "label": "Flight", "icon": "ship", "action": "seat_general/v_set_flight_mode" },
+				{ "id": "guns", "label": "Guns", "icon": "weapons", "action": "seat_general/v_set_guns_mode" },
+				{ "id": "missiles", "label": "Missiles", "icon": "missile", "action": "seat_general/v_set_missile_mode" },
+				{ "id": "scan", "label": "Scanning", "icon": "scan", "action": "seat_general/v_set_scan_mode" },
+				{ "id": "quantum", "label": "Quantum", "icon": "quantum", "action": "seat_general/v_set_quantum_mode" },
+				{ "id": "mining", "label": "Mining", "icon": "mining", "action": "seat_general/v_set_mining_mode" },
+				{ "id": "salvage", "label": "Salvage", "icon": "salvage", "action": "seat_general/v_set_salvage_mode" },
+				{ "id": "refuel", "label": "Refuel", "icon": "fuel", "action": "seat_general/v_set_refuel_mode" },
+				{ "id": "prev", "label": "Prev Mode", "icon": "chevron-left", "action": "seat_general/v_operator_mode_cycle_back" },
+				{ "id": "next", "label": "Next Mode", "icon": "chevron-right", "action": "seat_general/v_operator_mode_cycle_forward" }
+			],
+			"layouts": {
+				"5x3": { "x1y2": "flight", "x2y2": "guns", "x3y2": "missiles", "x4y2": "scan", "x1y1": "quantum", "x2y1": "mining", "x3y1": "salvage", "x4y1": "refuel", "x1y0": "prev", "x2y0": "next" }
+			}
+		},
+		{
+			"id": "cockpit",
+			"label": "Cockpit",
+			"color": "#94a3b8",
+			"icon": "visor",
+			"functions": [
+				{ "id": "map", "label": "Map", "icon": "map", "action": "spaceship_hud/v_starmap" },
+				{ "id": "mobiglas", "label": "mobiGlas", "icon": "mobiglas", "action": "spaceship_hud/mobiglas" },
+				{ "id": "visor_wipe", "label": "Wipe Visor", "icon": "visor", "action": "spaceship_hud/visor_wipe" },
+				{ "id": "night_vision", "label": "Night Vision", "icon": "night-vision", "action": "seat_general/v_light_amplification_toggle" },
+				{ "id": "look_behind", "label": "Look Behind", "icon": "look-behind", "action": "seat_general/v_view_look_behind" },
+				{ "id": "cooler_down", "label": "Cooler -", "icon": "cooler", "action": "spaceship_general/v_cooler_throttle_down" },
+				{ "id": "cooler_up", "label": "Cooler +", "icon": "cooler", "action": "spaceship_general/v_cooler_throttle_up" }
+			],
+			"layouts": {
+				"5x3": { "x1y2": "map", "x2y2": "mobiglas", "x3y2": "visor_wipe", "x4y2": "night_vision", "x1y1": "look_behind", "x3y1": "cooler_down", "x4y1": "cooler_up" }
+			}
+		},
+		{
+			"id": "emergency",
+			"label": "Emergency",
+			"color": "#dc2626",
+			"icon": "self-destruct",
+			"functions": [
+				{ "id": "eject", "label": "Eject", "icon": "eject", "confirm": true, "action": "seat_general/v_eject" },
+				{ "id": "self_destruct", "label": "Self Destruct", "icon": "self-destruct", "confirm": true, "action": "spaceship_general/v_self_destruct" },
+				{ "id": "exit_seat", "label": "Emergency Exit", "icon": "exit", "action": "seat_general/v_emergency_exit" }
+			],
+			"layouts": {
+				"5x3": { "x1y1": "exit_seat", "x2y1": "eject", "x4y1": "self_destruct" }
+			}
 		}
 	]
 }

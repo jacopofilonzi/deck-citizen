@@ -149,3 +149,12 @@ details > summary {
 code {
 	color: var(--accent);
 }
+
+.row > label.check {
+	color: var(--text);
+	text-align: left;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	cursor: pointer;
+}

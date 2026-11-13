@@ -6,7 +6,7 @@ import { menus } from "../menu/menu-controller.ts";
  * A generic key of the menu profile. It has no settings: what it shows and does is
  * decided by the menu controller from its position on the device.
  */
-@action({ UUID: "com.jacopo.scdeck.menu-slot" })
+@action({ UUID: "it.jacopofilonzi.deck-citizen.menu-slot" })
 export class MenuSlotAction extends SingletonAction {
 	override onWillAppear(ev: WillAppearEvent): void {
 		if (ev.action.isKey()) {

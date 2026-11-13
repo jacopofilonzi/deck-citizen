@@ -8,7 +8,7 @@ import path from "node:path";
 import url from "node:url";
 
 const isWatching = !!process.env.ROLLUP_WATCH;
-const sdPlugin = "com.jacopo.scdeck.sdPlugin";
+const sdPlugin = "it.jacopofilonzi.deck-citizen.sdPlugin";
 
 /**
  * Packages that cannot be bundled (native code). They are kept external and

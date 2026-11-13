@@ -1,7 +1,8 @@
-import { formatInput, parseInput, type ParsedInput } from "../input/keys.ts";
+import { formatInput, normalizeInput, parseInput, type ParsedInput } from "../input/keys.ts";
 import { planPress, type PressPlan } from "../keybinds/activation.ts";
 import type { KeybindResolver } from "../keybinds/resolver.ts";
-import type { Command, FunctionRef, Group, GroupFunction } from "./types.ts";
+import type { ActionId } from "../keybinds/types.ts";
+import type { Command, FunctionRef, Group, GroupFunction, WheelDirection } from "./types.ts";
 
 const MAX_REF_DEPTH = 5;
 
@@ -26,6 +27,17 @@ export type Step = { input: ParsedInput; plan: PressPlan } | { delayMs: number }
 export type Execution = { ok: true; steps: Step[] } | { ok: false; status: Exclude<FunctionStatus, { state: "ready" }> };
 
 const SHORT_TAP: PressPlan = { kind: "timed", holdMs: 50, taps: 1 };
+
+/** The mouse wheel as an axis; it can be driven with single wheel steps. */
+const WHEEL_AXIS = "maxis_z";
+
+/** `lalt+maxis_z` -> `lalt+mwheel_up`. Inputs without the wheel axis are returned unchanged. */
+function axisToWheel(raw: string, direction: WheelDirection): string {
+	return normalizeInput(raw)
+		.split("+")
+		.map((key) => (key.trim() === WHEEL_AXIS ? (direction === "up" ? "mwheel_up" : "mwheel_down") : key))
+		.join("+");
+}
 
 /**
  * Lookup of groups and functions, and translation of functions into concrete
@@ -71,23 +83,48 @@ export class Catalog {
 	}
 
 	/**
+	 * True when running the function needs a confirmation first, also through refs.
+	 */
+	needsConfirm(fn: GroupFunction, depth = 0): boolean {
+		if (fn.confirm) {
+			return true;
+		}
+		if (fn.command.type !== "ref" || depth >= MAX_REF_DEPTH) {
+			return false;
+		}
+		const target = this.lookup(fn.command.ref);
+		return target ? this.needsConfirm(target.fn, depth + 1) : false;
+	}
+
+	#planAction(action: ActionId, wheel: WheelDirection | undefined): Execution {
+		const bind = this.#resolver.resolve(action);
+		if (!bind) {
+			return { ok: false, status: { state: "missing", reason: `Game action ${action} not found` } };
+		}
+		if (bind.inputs.length === 0) {
+			return { ok: false, status: { state: "unbound" } };
+		}
+		for (const raw of bind.inputs) {
+			const input = parseInput(raw) ?? (wheel ? parseInput(axisToWheel(raw, wheel)) : undefined);
+			if (input) {
+				return { ok: true, steps: [{ input, plan: planPress(bind.activation) }] };
+			}
+		}
+		return { ok: false, status: { state: "unsupported", bindText: bind.inputs.map(formatInput).join(", ") } };
+	}
+
+	/**
 	 * Turns a command into the steps to run.
 	 */
 	plan(command: Command, depth = 0): Execution {
 		switch (command.type) {
 			case "game": {
-				const bind = this.#resolver.resolve(command.action);
-				if (!bind) {
-					return { ok: false, status: { state: "missing", reason: `Game action ${command.action} not found` } };
+				const main = this.#planAction(command.action, command.wheel);
+				if (main.ok || !command.fallback) {
+					return main;
 				}
-				if (bind.inputs.length === 0) {
-					return { ok: false, status: { state: "unbound" } };
-				}
-				const input = bind.inputs.map(parseInput).find((parsed) => parsed !== undefined);
-				if (!input) {
-					return { ok: false, status: { state: "unsupported", bindText: bind.inputs.map(formatInput).join(", ") } };
-				}
-				return { ok: true, steps: [{ input, plan: planPress(bind.activation) }] };
+				const fallback = this.#planAction(command.fallback, command.wheel);
+				return fallback.ok ? fallback : main;
 			}
 			case "keys": {
 				const input = parseInput(command.keys);

@@ -5,8 +5,8 @@ import fs from "node:fs";
 import path from "node:path";
 import zlib from "node:zlib";
 
-const SD_PLUGIN = "com.jacopo.scdeck.sdPlugin";
-const PLUGIN_UUID = "com.jacopo.scdeck";
+const SD_PLUGIN = "it.jacopofilonzi.deck-citizen.sdPlugin";
+const PLUGIN_UUID = "it.jacopofilonzi.deck-citizen";
 const SLOT_UUID = `${PLUGIN_UUID}.menu-slot`;
 
 /**
@@ -125,7 +125,7 @@ function pageFolder(uuid) {
 
 /** Stable UUID derived from a name, so rebuilding does not change the profiles. */
 function stableUuid(seed) {
-	const hash = crypto.createHash("sha1").update(`com.jacopo.scdeck:${seed}`).digest();
+	const hash = crypto.createHash("sha1").update(`it.jacopofilonzi.deck-citizen:${seed}`).digest();
 	hash[6] = (hash[6] & 0x0f) | 0x40;
 	hash[8] = (hash[8] & 0x3f) | 0x80;
 	const hex = hash.subarray(0, 16).toString("hex");

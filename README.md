@@ -7,16 +7,16 @@ Windows only. Inputs are sent with `SendInput` using scancodes.
 
 ```sh
 npm install
-npm run build        # generate profiles/icons, bundle into com.jacopo.scdeck.sdPlugin
+npm run build        # generate profiles/icons, bundle into it.jacopofilonzi.deck-citizen.sdPlugin
 npx streamdeck dev   # once: enable developer mode
-npx streamdeck link com.jacopo.scdeck.sdPlugin   # once: install the plugin folder in Stream Deck
+npx streamdeck link it.jacopofilonzi.deck-citizen.sdPlugin   # once: install the plugin folder in Stream Deck
 npm run watch        # rebuild and restart the plugin on every change
 npm test             # unit tests (Node 24+, runs TypeScript directly)
 npm run validate     # check manifest.json
 npm run pack         # build a .streamDeckPlugin file
 ```
 
-Plugin logs: `com.jacopo.scdeck.sdPlugin/logs/`.
+Plugin logs: `it.jacopofilonzi.deck-citizen.sdPlugin/logs/`.
 
 ## How it works
 
@@ -31,10 +31,17 @@ Plugin logs: `com.jacopo.scdeck.sdPlugin/logs/`.
 - **Groups** (`src/catalog`): built-in groups live in `src/catalog/builtin-groups.json`;
   each function points at a game action (`<actionmap>/<action>`). Custom groups are
   JSON in the plugin settings and can also use fixed keys, macros or references.
-- **Group editor** (`src/editor`, page in `com.jacopo.scdeck.sdPlugin/editor`): opened from
+  A game function can name a `"fallback"` action (used when the first has no usable bind)
+  and a `"wheel"` direction: binds on the mouse wheel axis (`maxis_z`) are then sent as
+  wheel steps, one per press or dial tick, repeating while a key is held.
+  `"confirm": true` shows a Confirm / Abort page before running (Emergency group);
+  each key can turn it off with "Skip confirmation".
+- **Group editor** (`src/editor`, page in `it.jacopofilonzi.deck-citizen.sdPlugin/editor`): opened from
   the key settings, it runs in the browser. The plugin starts a small web server only while
   the page is open (127.0.0.1, random port, secret token in the URL) and stops it when the
   page closes or after 15 minutes idle. The page edits the same custom groups JSON.
+  Import / export: "Export all" writes every custom group plus the game settings (a backup),
+  "Export group" writes one group to share; imports are merged into the editor and applied on Save.
 - **Key images** (`src/render`): static SVG keys with the group color bar, caption, icon,
   name and bind. Icons are listed in `src/render/icons.ts`; groups and functions pick
   one with `"icon"`, and any icon also works with an `-off` suffix (dimmed and crossed out).

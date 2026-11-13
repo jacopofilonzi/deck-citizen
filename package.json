@@ -6,11 +6,11 @@
   "type": "module",
   "scripts": {
     "build": "node tools/make-assets.mjs && rollup -c",
-    "watch": "node tools/make-assets.mjs && rollup -c -w --watch.onEnd=\"streamdeck restart com.jacopo.scdeck\"",
+    "watch": "node tools/make-assets.mjs && rollup -c -w --watch.onEnd=\"streamdeck restart it.jacopofilonzi.deck-citizen\"",
     "typecheck": "tsc --noEmit",
     "test": "node --test test/*.test.ts",
-    "validate": "streamdeck validate com.jacopo.scdeck.sdPlugin",
-    "pack": "npm run build && streamdeck pack com.jacopo.scdeck.sdPlugin --force"
+    "validate": "streamdeck validate it.jacopofilonzi.deck-citizen.sdPlugin",
+    "pack": "npm run build && streamdeck pack it.jacopofilonzi.deck-citizen.sdPlugin --force"
   },
   "dependencies": {
     "@elgato/streamdeck": "^3.0.4",

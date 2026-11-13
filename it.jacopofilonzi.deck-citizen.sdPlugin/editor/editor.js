@@ -29,6 +29,7 @@ const MODIFIERS = ["lctrl", "rctrl", "lshift", "rshift", "lalt", "ralt"];
 let server = null; // state from the plugin
 let saved = []; // custom groups as last saved
 let groups = []; // custom groups being edited
+let pendingSettings = null; // game settings from an imported backup, applied on Save
 let selected = 0;
 let previewTimer;
 
@@ -137,6 +138,8 @@ function setCommand(fn, type) {
 	}
 	delete fn.holdMs;
 	delete fn.hold;
+	delete fn.fallback;
+	delete fn.wheel;
 	if (type === "action") fn.action = "";
 	if (type === "keys") fn.keys = "";
 	if (type === "macro") fn.macro = [{ keys: "" }];
@@ -148,7 +151,7 @@ function actionInfo(id) {
 }
 
 function isDirty() {
-	return JSON.stringify(groups) !== JSON.stringify(saved);
+	return pendingSettings !== null || JSON.stringify(groups) !== JSON.stringify(saved);
 }
 
 function showBanner(text) {
@@ -284,7 +287,7 @@ function groupCard(group) {
 	});
 
 	return el("section", { class: "card" }, [
-		el("div", { class: "card-head" }, [el("h2", { textContent: "Group" }), deleteButton]),
+		el("div", { class: "card-head" }, [el("h2", { textContent: "Group" }), el("div", { class: "row-buttons" }, [el("button", { class: "small ghost", textContent: "Export group", onclick: () => exportGroup(group) }), deleteButton])]),
 		el("div", { class: "grid-2" }, [field("Name", label), field("Color", colorRow(group)), field("Icon", iconButton(group.icon, "Group icon", (icon) => (group.icon = icon)), "Used on the menu key, and for functions without their own icon.")]),
 		el("label", { class: "check" }, [stay, el("span", { textContent: "Stay in the menu after pressing a function (otherwise go back)" })]),
 		el("div", { class: "ids" }, [el("label", {}, ["Group id ", id]), el("span", { textContent: "Used by references (id/function) and saved settings. Changing it breaks keys that use this group." })]),
@@ -413,8 +416,21 @@ function functionRow(group, fn, index) {
 			),
 		),
 		el("div", { class: "fn-body" }, commandEditor(group, fn, type)),
+		confirmCheck(fn),
 		el("div", { class: "ids" }, [el("label", {}, ["Function id ", id])]),
 	]);
+}
+
+function confirmCheck(fn) {
+	const box = el("input", {
+		type: "checkbox",
+		checked: !!fn.confirm,
+		onchange: () => {
+			box.checked ? (fn.confirm = true) : delete fn.confirm;
+			changed();
+		},
+	});
+	return el("label", { class: "check" }, [box, el("span", { textContent: "Ask for confirmation before running (Confirm / Abort page; each key can skip it in its settings)" })]);
 }
 
 function removeFromLayouts(group, fnId) {
@@ -428,11 +444,31 @@ function removeFromLayouts(group, fnId) {
 function commandEditor(group, fn, type) {
 	if (type === "action") {
 		const info = actionInfo(fn.action);
-		const button = el("button", { class: "action-pick", onclick: () => pickAction(fn) }, [
-			el("span", { textContent: fn.action ? info?.label ?? fn.action : "Choose a game action…" }),
-			fn.action ? el("span", { class: `bind${info?.bind ? "" : " none"}`, textContent: info ? info.bind ?? "NO BIND" : "Not in this game version" }) : null,
+		const fallbackInfo = actionInfo(fn.fallback);
+		const onWheel = [info, fallbackInfo].some((a) => /wheel \(axis\)/i.test(a?.bind ?? ""));
+		const wheel = el("select", {
+			onchange: () => {
+				wheel.value ? (fn.wheel = wheel.value) : delete fn.wheel;
+				changed({ rerender: true });
+			},
+		}, [
+			el("option", { value: "", textContent: "Not used", selected: !fn.wheel }),
+			el("option", { value: "up", textContent: "Scroll up", selected: fn.wheel === "up" }),
+			el("option", { value: "down", textContent: "Scroll down", selected: fn.wheel === "down" }),
 		]);
-		return [button, info && !info.bind ? el("p", { class: "hint", textContent: "No key is bound to this in Star Citizen. Bind one in the game (Options > Keybindings) for this function to work." }) : null];
+		const fallback = el("div", { class: "keys-row" }, [
+			actionButton(fn, "fallback", "No fallback (optional)"),
+			fn.fallback ? el("button", { class: "small ghost", textContent: "Clear", onclick: () => (delete fn.fallback, changed({ rerender: true })) }) : null,
+		]);
+		return [
+			actionButton(fn, "action", "Choose a game action…"),
+			info && !info.bind && !fallbackInfo?.bind ? el("p", { class: "hint", textContent: "No key is bound to this in Star Citizen. Bind one in the game (Options > Keybindings) for this function to work." }) : null,
+			el("details", { class: "more", open: !!(fn.fallback || fn.wheel || onWheel) || undefined }, [
+				el("summary", { textContent: "Fallback and mouse wheel" }),
+				field("Fallback action", fallback, "Used when the action above has no key the plugin can press."),
+				field("If the bind is the mouse wheel", wheel, onWheel && !fn.wheel ? "This action is on the mouse wheel: choose a direction, or the key cannot work." : "Each press (and each dial tick) scrolls one step; holding the key keeps scrolling."),
+			]),
+		];
 	}
 	if (type === "keys") {
 		const hold = el("input", {
@@ -475,6 +511,14 @@ function commandEditor(group, fn, type) {
 		},
 	}, options);
 	return [ref, el("p", { class: "hint", textContent: "Runs that function exactly as its own key would." })];
+}
+
+function actionButton(fn, key, placeholder) {
+	const info = actionInfo(fn[key]);
+	return el("button", { class: "action-pick", onclick: () => pickAction(fn, key) }, [
+		el("span", { textContent: fn[key] ? info?.label ?? fn[key] : placeholder }),
+		fn[key] ? el("span", { class: `bind${info?.bind ? "" : " none"}`, textContent: info ? info.bind ?? "NO BIND" : "Not in this game version" }) : null,
+	]);
 }
 
 function macroStep(fn, step, i) {
@@ -714,13 +758,13 @@ function openPicker(title, renderBody) {
 	search.focus();
 }
 
-function pickAction(fn) {
+function pickAction(fn, key = "action") {
 	const byMap = new Map();
 	for (const action of server.actions) {
 		if (!byMap.has(action.mapLabel)) byMap.set(action.mapLabel, []);
 		byMap.get(action.mapLabel).push(action);
 	}
-	openPicker("Game action", (query, body, close) => {
+	openPicker(key === "fallback" ? "Fallback game action" : "Game action", (query, body, close) => {
 		body.replaceChildren();
 		let shown = 0;
 		for (const [mapLabel, actions] of byMap) {
@@ -731,11 +775,11 @@ function pickAction(fn) {
 				shown++;
 				body.append(
 					el("button", {
-						class: `action-option${action.id === fn.action ? " active" : ""}`,
+						class: `action-option${action.id === fn[key] ? " active" : ""}`,
 						title: action.description ?? "",
 						onclick: () => {
-							fn.action = action.id;
-							if (!fn.label || fn.label === "New function") {
+							fn[key] = action.id;
+							if (key === "action" && (!fn.label || fn.label === "New function")) {
 								fn.label = action.label ?? fn.label;
 							}
 							close();
@@ -768,6 +812,147 @@ function pickIcon(title, current, onPick) {
 }
 
 // ---------------------------------------------------------------------------
+// Import / export
+
+const FILE_FORMAT = "deck-citizen";
+
+function download(name, data) {
+	const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" }));
+	el("a", { href: url, download: name }).click();
+	setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+const today = () => new Date().toISOString().slice(0, 10);
+
+/** Everything: all custom groups plus the game folder settings. A backup, or to move to another PC. */
+function exportAll() {
+	const settings = Object.fromEntries(Object.entries(server.settings ?? {}).filter(([, v]) => v));
+	download(`deck-citizen-backup-${today()}.json`, { format: FILE_FORMAT, version: 1, kind: "backup", exported: new Date().toISOString(), groups, settings });
+}
+
+/** One group, to share. */
+function exportGroup(group) {
+	download(`deck-citizen-${slug(group.id, "group")}.json`, { format: FILE_FORMAT, version: 1, kind: "groups", exported: new Date().toISOString(), groups: [group] });
+}
+
+/** Reads a file made by Export (or plain group JSON: a list, or { "groups": [...] }). */
+function parseImport(text) {
+	let data;
+	try {
+		data = JSON.parse(text);
+	} catch {
+		throw new Error("This is not a JSON file.");
+	}
+	const list = Array.isArray(data) ? data : Array.isArray(data?.groups) ? data.groups : isGroupLike(data) ? [data] : null;
+	if (!list) {
+		throw new Error("No groups found in this file.");
+	}
+	const bad = list.findIndex((g) => !isGroupLike(g));
+	if (bad >= 0) {
+		throw new Error(`Item ${bad + 1} is not a group (it needs an id, a label and functions).`);
+	}
+	const settings = data?.settings && typeof data.settings === "object" ? data.settings : null;
+	return { groups: list, settings: settings && (settings.gameRoot || settings.channel) ? settings : null };
+}
+
+function isGroupLike(value) {
+	return value && typeof value === "object" && typeof value.id === "string" && Array.isArray(value.functions);
+}
+
+function openImport(file) {
+	const reader = new FileReader();
+	reader.onload = () => {
+		try {
+			showImport(file.name, parseImport(String(reader.result)));
+		} catch (err) {
+			showImportError(file.name, err.message);
+		}
+	};
+	reader.readAsText(file);
+}
+
+function showImportError(name, message) {
+	importDialog(`Import ${name}`, [el("p", { class: "error-text", textContent: message })], [el("button", { class: "ghost", textContent: "Close", value: "cancel" })]);
+}
+
+function showImport(name, data) {
+	const builtin = new Set(server.builtinGroups.map((g) => g.id));
+	const mine = new Set(groups.map((g) => g.id));
+	// What to do with each group: "add" (new id), "replace" (same id as one of yours), "copy" (keep both).
+	const choices = data.groups.map((g) => (builtin.has(g.id) ? "copy" : mine.has(g.id) ? "replace" : "add"));
+	const rows = data.groups.map((g, i) => {
+		const conflict = builtin.has(g.id) ? "builtin" : mine.has(g.id) ? "mine" : null;
+		const choice = conflict === "mine"
+			? el("select", { onchange: (e) => (choices[i] = e.target.value) }, [
+				el("option", { value: "replace", textContent: "Replace mine" }),
+				el("option", { value: "copy", textContent: "Keep both" }),
+				el("option", { value: "skip", textContent: "Skip" }),
+			])
+			: el("select", { onchange: (e) => (choices[i] = e.target.value) }, [
+				el("option", { value: conflict ? "copy" : "add", textContent: conflict ? "Add as a copy" : "Add" }),
+				el("option", { value: "skip", textContent: "Skip" }),
+			]);
+		return el("div", { class: "import-row" }, [
+			el("span", { class: "swatch", style: `background:${g.color || "#64748b"}` }),
+			el("span", { class: "name", textContent: `${g.label || g.id} · ${g.functions.length} function${g.functions.length === 1 ? "" : "s"}` }),
+			el("span", { class: "hint", textContent: conflict === "builtin" ? "same id as a built-in group" : conflict === "mine" ? "you already have this group" : "" }),
+			choice,
+		]);
+	});
+	const restore = el("input", { type: "checkbox", checked: true });
+	const replaceAll = el("input", { type: "checkbox" });
+	const body = [
+		el("p", { class: "hint", textContent: "Imported groups are added to the editor. Nothing changes on your Stream Deck until you press Save." }),
+		el("div", { class: "import-list" }, rows),
+		el("label", { class: "check" }, [replaceAll, el("span", { textContent: "Remove my other groups (replace everything with this file)" })]),
+		data.settings
+			? el("label", { class: "check" }, [restore, el("span", { textContent: `Also restore the game settings (${[data.settings.gameRoot, data.settings.channel].filter(Boolean).join(", ")})` })])
+			: null,
+	];
+	const apply = el("button", {
+		class: "primary",
+		textContent: "Import",
+		value: "ok",
+		onclick: () => {
+			const next = replaceAll.checked ? [] : clone(groups);
+			const taken = () => new Set([...builtin, ...next.map((g) => g.id)]);
+			data.groups.forEach((source, i) => {
+				const group = clone(source);
+				if (choices[i] === "skip") return;
+				if (choices[i] === "replace") {
+					const at = next.findIndex((g) => g.id === group.id);
+					if (at >= 0) {
+						next[at] = group;
+						return;
+					}
+				}
+				if (choices[i] === "copy" || taken().has(group.id)) {
+					group.id = uniqueId(`${group.id}_imported`, taken());
+					group.label = `${group.label || group.id} (imported)`;
+				}
+				next.push(group);
+			});
+			groups = next;
+			if (data.settings && restore.checked) {
+				pendingSettings = { gameRoot: data.settings.gameRoot ?? "", channel: data.settings.channel ?? "" };
+			}
+			selected = Math.max(0, groups.length - 1);
+			render();
+			updateSaveState({ text: "Imported: press Save to use it" });
+		},
+	});
+	importDialog(`Import ${name}`, body, [el("button", { class: "ghost", textContent: "Cancel", value: "cancel" }), apply]);
+}
+
+function importDialog(title, body, buttons) {
+	const dialog = $("importDialog");
+	$("importTitle").textContent = title;
+	$("importBody").replaceChildren(...body.filter(Boolean));
+	$("importButtons").replaceChildren(...buttons);
+	dialog.showModal();
+}
+
+// ---------------------------------------------------------------------------
 // Toolbar and sidebar actions
 
 function newGroup() {
@@ -794,7 +979,7 @@ function copyBuiltin(id) {
 async function save() {
 	$("save").disabled = true;
 	try {
-		const result = await api("save", { groups });
+		const result = await api("save", { groups, settings: pendingSettings ?? undefined });
 		if (result.error) {
 			updateSaveState({ text: "Not saved: fix the error in the preview" });
 			$("previewError").hidden = false;
@@ -802,6 +987,7 @@ async function save() {
 			return;
 		}
 		saved = clone(groups);
+		pendingSettings = null;
 		hideBanner();
 		updateSaveState({ text: "Saved", ok: true });
 	} catch (err) {
@@ -812,10 +998,25 @@ async function save() {
 $("save").addEventListener("click", () => void save());
 $("discard").addEventListener("click", () => {
 	groups = clone(saved);
+	pendingSettings = null;
 	selected = Math.min(selected, Math.max(groups.length - 1, 0));
 	render();
 });
 $("newGroup").addEventListener("click", newGroup);
+$("exportAll").addEventListener("click", exportAll);
+$("importButton").addEventListener("click", () => $("importFile").click());
+$("importFile").addEventListener("change", (e) => {
+	const file = e.target.files?.[0];
+	e.target.value = "";
+	if (file) openImport(file);
+});
+// Dropping a file anywhere on the page imports it.
+window.addEventListener("dragover", (e) => e.preventDefault());
+window.addEventListener("drop", (e) => {
+	e.preventDefault();
+	const file = e.dataTransfer?.files?.[0];
+	if (file) openImport(file);
+});
 $("copyBuiltin").addEventListener("change", (e) => {
 	copyBuiltin(e.target.value);
 	e.target.value = "";

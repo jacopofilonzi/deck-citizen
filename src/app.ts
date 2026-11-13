@@ -74,7 +74,10 @@ class App extends EventEmitter<{ changed: [] }> {
 	 * source of truth is decided: today bundled defaults + the user's actionmaps.xml.
 	 */
 	async init(): Promise<void> {
-		this.#applySettings(await streamDeck.settings.getGlobalSettings<GlobalSettings & JsonObject>());
+		const settings = await streamDeck.settings.getGlobalSettings<GlobalSettings & JsonObject>();
+		const groups = Array.isArray(settings.customGroups) ? settings.customGroups.length : 0;
+		streamDeck.logger.info(`Global settings: ${groups} custom group(s), game root ${settings.gameRoot ? "set" : "default"}, channel ${settings.channel || "default"}`);
+		this.#applySettings(settings);
 		streamDeck.settings.onDidReceiveGlobalSettings<GlobalSettings & JsonObject>((ev) => {
 			this.#applySettings(ev.settings);
 			void this.keybinds.reload();

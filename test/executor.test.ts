@@ -39,4 +39,17 @@ describe("executor", () => {
 		await new Executor(new InputInjector(backend)).press("k", [{ input: { keys: ["n"] }, plan: { kind: "timed", holdMs: 300, taps: 1 } }]);
 		assert.ok(times[1]! - times[0]! >= 295, `held ${times[1]! - times[0]!}ms`);
 	});
+
+	it("repeats a wheel step while the key is held", async () => {
+		const { backend, events } = recorder();
+		const executor = new Executor(new InputInjector(backend));
+		await executor.press("k", [{ input: { keys: ["mwheel_up"] }, plan: { kind: "timed", holdMs: 1, taps: 1 } }]);
+		assert.deepEqual(events, ["+mwheel_up", "-mwheel_up"]);
+		await new Promise((resolve) => setTimeout(resolve, 600));
+		await executor.release("k");
+		const count = events.filter((e) => e === "+mwheel_up").length;
+		assert.ok(count >= 3, `only ${count} steps`);
+		await new Promise((resolve) => setTimeout(resolve, 200));
+		assert.equal(events.filter((e) => e === "+mwheel_up").length, count, "kept scrolling after release");
+	});
 });

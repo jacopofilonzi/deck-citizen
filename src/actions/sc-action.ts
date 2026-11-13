@@ -16,6 +16,7 @@ import streamDeck, {
 import type { JsonValue } from "@elgato/utils";
 
 import { app } from "../app.ts";
+import type { Step } from "../catalog/catalog.ts";
 import { groupToJson } from "../catalog/groups.ts";
 import type { FunctionRef, MenuLayout } from "../catalog/types.ts";
 import { editorServer } from "../editor/editor-server.ts";
@@ -34,6 +35,8 @@ export type ScSettings = {
 	after?: "group" | "stay" | "back";
 	/** Menu only: per-key layout replacing the group's one. */
 	layout?: MenuLayout;
+	/** Run functions that ask for confirmation (eject, self destruct...) right away. */
+	skipConfirm?: boolean;
 	/** Dials: functions for each gesture. */
 	rotateRight?: FunctionRef;
 	rotateLeft?: FunctionRef;
@@ -57,7 +60,7 @@ type PiRequest =
  * The single "Star Citizen" action. Configured with a group and either one of its
  * functions or the group's menu. On dials, each gesture runs its own function.
  */
-@action({ UUID: "com.jacopo.scdeck.action" })
+@action({ UUID: "it.jacopofilonzi.deck-citizen.action" })
 export class ScDeckAction extends SingletonAction<ScSettings> {
 	constructor() {
 		super();
@@ -90,7 +93,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 
 		if (settings.fn === MENU) {
 			const stay = settings.after === "stay" ? true : settings.after === "back" ? false : group.stayInMenu;
-			const opened = await menus.open(ev.action.device.id, ev.action.device.type, group, { layout: settings.layout, stay });
+			const opened = await menus.open(ev.action.device.id, ev.action.device.type, group, { layout: settings.layout, stay, skipConfirm: settings.skipConfirm });
 			if (!opened) {
 				streamDeck.logger.warn(`No menu profile for device type ${ev.action.device.type}`);
 				await ev.action.showAlert();
@@ -98,7 +101,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 			return;
 		}
 
-		await this.#press(ev.action, ev.action.id, `${settings.group}/${settings.fn}`);
+		await this.#press(ev.action, ev.action.id, `${settings.group}/${settings.fn}`, settings.skipConfirm);
 	}
 
 	override async onKeyUp(ev: KeyUpEvent<ScSettings>): Promise<void> {
@@ -112,6 +115,9 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 			await ev.action.showAlert();
 			return;
 		}
+		if (await this.#askConfirm(ev.action, ref, execution, ev.payload.settings.skipConfirm)) {
+			return;
+		}
 		// One step per tick, no acceleration.
 		for (let i = 0; i < Math.abs(ev.payload.ticks); i++) {
 			await app.executor.trigger(execution);
@@ -119,7 +125,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 	}
 
 	override async onDialDown(ev: DialDownEvent<ScSettings>): Promise<void> {
-		await this.#press(ev.action, `${ev.action.id}:press`, ev.payload.settings.press);
+		await this.#press(ev.action, `${ev.action.id}:press`, ev.payload.settings.press, ev.payload.settings.skipConfirm);
 	}
 
 	override async onDialUp(ev: DialUpEvent<ScSettings>): Promise<void> {
@@ -176,10 +182,30 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 		return execution.ok ? execution.steps : undefined;
 	}
 
-	async #press(instance: ScAction, token: string, ref: FunctionRef | undefined): Promise<void> {
+	/**
+	 * Opens the confirmation page if the function asks for it. Returns true when the
+	 * press is handled (confirmation shown, or refused because the device cannot show it).
+	 */
+	async #askConfirm(instance: ScAction, ref: FunctionRef | undefined, steps: Step[], skip: boolean | undefined): Promise<boolean> {
+		const target = app.catalog.lookup(ref);
+		if (skip || !target || !app.catalog.needsConfirm(target.fn)) {
+			return false;
+		}
+		const shown = await menus.confirm(instance.device.id, instance.device.type, target.group, target.fn, steps);
+		if (!shown) {
+			streamDeck.logger.warn(`Cannot ask for confirmation on device type ${instance.device.type}; enable "Skip confirmation" to use ${ref} here`);
+			await showAlert(instance);
+		}
+		return true;
+	}
+
+	async #press(instance: ScAction, token: string, ref: FunctionRef | undefined, skipConfirm?: boolean): Promise<void> {
 		const steps = this.#plan(ref);
 		if (!steps) {
 			await showAlert(instance);
+			return;
+		}
+		if (await this.#askConfirm(instance, ref, steps, skipConfirm)) {
 			return;
 		}
 		try {
@@ -239,6 +265,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 					return {
 						id: fn.id,
 						label: fn.label,
+						confirm: catalog.needsConfirm(fn),
 						state: status.state,
 						bindText: "bindText" in status ? status.bindText : null,
 						message: explainStatus(status) ?? null,

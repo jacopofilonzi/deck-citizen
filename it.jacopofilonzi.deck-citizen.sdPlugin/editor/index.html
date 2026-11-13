@@ -31,6 +31,15 @@
 					<span>Start from a built-in group</span>
 					<select id="copyBuiltin"></select>
 				</label>
+				<div class="share">
+					<div class="sidebar-head">Import / export</div>
+					<div class="row-buttons">
+						<button id="importButton" class="ghost">Import…</button>
+						<button id="exportAll" class="ghost">Export all</button>
+					</div>
+					<p class="hint">Export all saves every group and the game settings in one file (a backup, or to move to another PC). Use "Export group" on a group to share just that one. You can also drop a file on this page.</p>
+					<input id="importFile" type="file" accept=".json,application/json" hidden />
+				</div>
 				<details class="advanced">
 					<summary>JSON</summary>
 					<p class="hint">All custom groups, as saved. Edit and apply, or copy to share.</p>
@@ -57,6 +66,13 @@
 			</form>
 			<input id="pickerSearch" type="search" placeholder="Search…" autocomplete="off" />
 			<div id="pickerBody" class="picker-body"></div>
+		</dialog>
+		<dialog id="importDialog" class="picker import-dialog">
+			<form method="dialog">
+				<div class="picker-head"><h2 id="importTitle"></h2></div>
+				<div id="importBody" class="import-body"></div>
+				<div id="importButtons" class="row-buttons import-buttons"></div>
+			</form>
 		</dialog>
 		<script src="editor.js"></script>
 	</body>

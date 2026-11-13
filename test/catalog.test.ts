@@ -49,12 +49,54 @@ describe("catalog", () => {
 	});
 });
 
+describe("mouse wheel axis and confirmation", () => {
+	const wheelLayer: BindLayer = {
+		name: "wheel",
+		activationModes: new Map(),
+		actions: new Map([
+			["spaceship_mining/v_increase_mining_throttle", { inputs: ["maxis_z"] }],
+			["spaceship_mining/v_decrease_mining_throttle", { inputs: [] }],
+			["spaceship_salvage/v_salvage_increase_beam_spacing", { inputs: ["f5"] }],
+			["spaceship_salvage/v_salvage_beam_spacing_rel", { inputs: ["maxis_z"] }],
+		]),
+	};
+	const catalog = new Catalog(BUILTIN_GROUPS, new KeybindResolver([wheelLayer]));
+	const fn = (group: string, id: string) => BUILTIN_GROUPS.find((g) => g.id === group)!.functions.find((f) => f.id === id)!;
+
+	it("drives a wheel axis bind with wheel steps in the function's direction", () => {
+		assert.deepEqual(catalog.status(fn("mining", "power_up")), { state: "ready", bindText: "Wheel Up" });
+		// Power - has no bind of its own: it falls back to the wheel axis of Power +.
+		assert.deepEqual(catalog.status(fn("mining", "power_down")), { state: "ready", bindText: "Wheel Down" });
+	});
+
+	it("prefers the action's own key over the fallback", () => {
+		assert.deepEqual(catalog.status(fn("salvage", "spacing_up")), { state: "ready", bindText: "F5" });
+		assert.deepEqual(catalog.status(fn("salvage", "spacing_down")), { state: "ready", bindText: "Wheel Down" });
+	});
+
+	it("keeps a wheel axis unsupported without a direction", () => {
+		const [custom] = readCustomGroups([{ id: "w", label: "W", functions: [{ id: "a", label: "A", action: "spaceship_mining/v_increase_mining_throttle" }] }]);
+		assert.equal(catalog.status(custom!.functions[0]!).state, "unsupported");
+	});
+
+	it("asks for confirmation on eject and self destruct, also through refs", () => {
+		assert.equal(catalog.needsConfirm(fn("emergency", "eject")), true);
+		assert.equal(catalog.needsConfirm(fn("emergency", "exit_seat")), false);
+		const [custom] = readCustomGroups([{ id: "c", label: "C", functions: [{ id: "boom", label: "Boom", ref: "emergency/self_destruct" }] }]);
+		assert.equal(catalog.needsConfirm(custom!.functions[0]!), true);
+	});
+
+	it("rejects an invalid wheel direction", () => {
+		assert.throws(() => readCustomGroups([{ id: "w", label: "W", functions: [{ id: "a", label: "A", action: "a/b", wheel: "left" }] }]), /wheel/);
+	});
+});
+
 describe("custom groups", () => {
 	it("accepts keys, macros and refs", () => {
 		const groups = readCustomGroups({
 			groups: [
 				{
-					id: "salvage",
+					id: "my_salvage",
 					label: "Salvage",
 					functions: [
 						{ id: "a", label: "A", keys: "lctrl+f1" },

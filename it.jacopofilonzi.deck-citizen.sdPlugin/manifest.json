@@ -22,11 +22,11 @@
 		"Version": "20",
 		"Debug": "enabled"
 	},
-	"UUID": "com.jacopo.scdeck",
+	"UUID": "it.jacopofilonzi.deck-citizen",
 	"Actions": [
 		{
 			"Name": "Star Citizen",
-			"UUID": "com.jacopo.scdeck.action",
+			"UUID": "it.jacopofilonzi.deck-citizen.action",
 			"Icon": "imgs/action",
 			"Tooltip": "Run a Star Citizen function or open a group's menu.",
 			"PropertyInspectorPath": "ui/sc-action.html",
@@ -52,7 +52,7 @@
 		},
 		{
 			"Name": "Menu Slot",
-			"UUID": "com.jacopo.scdeck.menu-slot",
+			"UUID": "it.jacopofilonzi.deck-citizen.menu-slot",
 			"Icon": "imgs/action",
 			"Tooltip": "Used by the Star Citizen menu profiles.",
 			"Controllers": [

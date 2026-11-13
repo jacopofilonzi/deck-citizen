@@ -1,7 +1,14 @@
 import { MULTI_TAP_GAP_MS } from "../keybinds/activation.ts";
 import type { InputInjector } from "../input/injector.ts";
-import type { ParsedInput } from "../input/keys.ts";
+import { MOUSE, type ParsedInput } from "../input/keys.ts";
 import type { Step } from "./catalog.ts";
+
+/** Holding a key on a wheel step repeats it: first repeat after this delay... */
+export const WHEEL_REPEAT_DELAY_MS = 350;
+/** ...then one wheel step every this often. */
+export const WHEEL_REPEAT_MS = 80;
+
+const isWheel = (input: ParsedInput): boolean => input.keys.some((key) => MOUSE[key]?.kind === "wheel");
 
 /**
  * Runs planned steps. Keeps track of inputs held down by "passthrough" steps so the
@@ -10,6 +17,7 @@ import type { Step } from "./catalog.ts";
 export class Executor {
 	readonly #injector: InputInjector;
 	readonly #held = new Map<string, ParsedInput[]>();
+	readonly #repeats = new Map<string, NodeJS.Timeout>();
 
 	constructor(injector: InputInjector) {
 		this.#injector = injector;
@@ -21,6 +29,18 @@ export class Executor {
 	 */
 	async press(token: string, steps: Step[]): Promise<void> {
 		await this.release(token);
+		const only = steps.length === 1 ? steps[0] : undefined;
+		if (only && "input" in only && only.plan.kind === "timed" && isWheel(only.input)) {
+			// A wheel step has no hold: keep scrolling while the key is down, like a held arrow key.
+			const { input, plan } = only;
+			const step = (): Promise<void> => this.#injector.tap(input, plan.holdMs, plan.taps, MULTI_TAP_GAP_MS);
+			await step();
+			const timer = setTimeout(() => {
+				this.#repeats.set(token, setInterval(() => void step(), WHEEL_REPEAT_MS));
+			}, WHEEL_REPEAT_DELAY_MS);
+			this.#repeats.set(token, timer);
+			return;
+		}
 		const held: ParsedInput[] = [];
 		for (const step of steps) {
 			if ("delayMs" in step) {
@@ -42,6 +62,12 @@ export class Executor {
 
 	/** Stream Deck key released. */
 	async release(token: string): Promise<void> {
+		const repeat = this.#repeats.get(token);
+		if (repeat) {
+			// clearTimeout also clears intervals in Node.
+			clearTimeout(repeat);
+			this.#repeats.delete(token);
+		}
 		const held = this.#held.get(token);
 		if (!held) {
 			return;
@@ -69,7 +95,7 @@ export class Executor {
 
 	/** Releases everything (e.g. when the plugin shuts down). */
 	async releaseAll(): Promise<void> {
-		for (const token of [...this.#held.keys()]) {
+		for (const token of [...this.#held.keys(), ...this.#repeats.keys()]) {
 			await this.release(token);
 		}
 	}

@@ -147,6 +147,7 @@ const DISPLAY: Readonly<Record<string, string>> = {
 	mouse5: "Mouse 5",
 	mwheel_up: "Wheel Up",
 	mwheel_down: "Wheel Down",
+	maxis_z: "Mouse Wheel (axis)",
 	pgup: "PgUp",
 	pgdn: "PgDn",
 	lbracket: "[",

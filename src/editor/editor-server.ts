@@ -165,10 +165,17 @@ class EditorServer {
 			case "preview":
 				return preview(body);
 			case "save": {
-				const groups = (body as { groups?: JsonValue })?.groups ?? [];
+				const request = body as { groups?: JsonValue; settings?: { gameRoot?: unknown; channel?: unknown } } | undefined;
+				const groups = request?.groups ?? [];
 				const error = app.validateCustomGroups(groups);
 				if (!error) {
-					await app.updateSettings({ customGroups: groups });
+					// Game settings come along only when a backup was imported.
+					const game = request?.settings;
+					const text = (value: unknown): string | undefined => (typeof value === "string" ? value.trim() : undefined);
+					await app.updateSettings({
+						customGroups: groups,
+						...(game ? { gameRoot: text(game.gameRoot), channel: text(game.channel) } : {}),
+					});
 				}
 				return { error: error ?? null };
 			}
@@ -197,6 +204,7 @@ class EditorServer {
 		const sizes = [...streamDeck.devices].filter((d) => d.isConnected).map((d) => ({ name: d.name, columns: d.size.columns, rows: d.size.rows }));
 		return {
 			customGroups: app.settings.customGroups ?? [],
+			settings: { gameRoot: app.settings.gameRoot ?? "", channel: app.settings.channel ?? "" },
 			customGroupsError: app.customGroupsError ?? null,
 			builtinGroups: BUILTIN_GROUPS.map(groupToJson),
 			icons: Object.fromEntries(ICON_NAMES.map((name) => [name, iconImage(name)])),

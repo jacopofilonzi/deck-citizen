@@ -1,7 +1,14 @@
 import type { ActionId } from "../keybinds/types.ts";
 
-/** Runs a game action using the player's current bind. */
-export type GameCommand = { type: "game"; action: ActionId };
+/**
+ * Runs a game action using the player's current bind.
+ * - `fallback`: another action used when `action` has no bind the plugin can send.
+ * - `wheel`: when the bind is the mouse wheel axis (`maxis_z`), the wheel direction to
+ *   send. Lets a key or a dial drive actions the game puts on the scroll wheel.
+ */
+export type GameCommand = { type: "game"; action: ActionId; fallback?: ActionId; wheel?: WheelDirection };
+
+export type WheelDirection = "up" | "down";
 
 /**
  * Sends a fixed key or combination, e.g. `lctrl+f1`. `hold: true` keeps the keys down
@@ -24,6 +31,8 @@ export type GroupFunction = {
 	label: string;
 	/** Icon name (see render/icons.ts); falls back to the group's icon. */
 	icon?: string;
+	/** Ask for confirmation before running (e.g. eject, self destruct). */
+	confirm?: boolean;
 	command: Command;
 };
 

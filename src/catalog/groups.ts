@@ -3,7 +3,7 @@ import builtinData from "./builtin-groups.json" with { type: "json" };
 import { parseInput } from "../input/keys.ts";
 import { ICON_NAMES, isIconName } from "../render/icons.ts";
 import type { ActionId } from "../keybinds/types.ts";
-import type { Command, Group, GroupFunction, MacroStep, MenuLayout } from "./types.ts";
+import type { Command, Group, GroupFunction, MacroStep, MenuLayout, WheelDirection } from "./types.ts";
 
 const DEFAULT_COLOR = "#64748b";
 const ID = /^[a-z0-9_-]+$/i;
@@ -40,7 +40,17 @@ function readCommand(raw: Record<string, unknown>, path: string): Command {
 		if (!ACTION_ID.test(action)) {
 			fail(`${path}.action`, 'must look like "<actionmap>/<action>"');
 		}
-		return { type: "game", action: action as ActionId };
+		let fallback: ActionId | undefined;
+		if (raw.fallback !== undefined) {
+			fallback = readString(raw.fallback, `${path}.fallback`) as ActionId;
+			if (!ACTION_ID.test(fallback)) {
+				fail(`${path}.fallback`, 'must look like "<actionmap>/<action>"');
+			}
+		}
+		if (raw.wheel !== undefined && raw.wheel !== "up" && raw.wheel !== "down") {
+			fail(`${path}.wheel`, 'must be "up" or "down"');
+		}
+		return { type: "game", action: action as ActionId, fallback, wheel: raw.wheel as WheelDirection | undefined };
 	}
 	if (raw.keys !== undefined) {
 		const holdMs = raw.holdMs;
@@ -144,7 +154,16 @@ export function readGroup(raw: unknown, custom: boolean, path = "group"): Group 
 			fail(`${fnPath}.id`, `duplicate id "${fnId}"`);
 		}
 		seen.add(fnId);
-		return { id: fnId, label: readString(fn.label, `${fnPath}.label`), icon: readIcon(fn.icon, `${fnPath}.icon`), command: readCommand(fn, fnPath) };
+		if (fn.confirm !== undefined && typeof fn.confirm !== "boolean") {
+			fail(`${fnPath}.confirm`, "must be true or false");
+		}
+		return {
+			id: fnId,
+			label: readString(fn.label, `${fnPath}.label`),
+			icon: readIcon(fn.icon, `${fnPath}.icon`),
+			confirm: fn.confirm === true || undefined,
+			command: readCommand(fn, fnPath),
+		};
 	});
 
 	return {
@@ -196,16 +215,17 @@ export function groupToJson(group: Group): Record<string, unknown> {
 		icon: group.icon,
 		stayInMenu: group.stayInMenu,
 		functions: group.functions.map((fn) => {
+			const base = { id: fn.id, label: fn.label, icon: fn.icon, confirm: fn.confirm };
 			const command = fn.command;
 			switch (command.type) {
 				case "game":
-					return { id: fn.id, label: fn.label, icon: fn.icon, action: command.action };
+					return { ...base, action: command.action, fallback: command.fallback, wheel: command.wheel };
 				case "keys":
-					return { id: fn.id, label: fn.label, icon: fn.icon, keys: command.keys, holdMs: command.holdMs, hold: command.hold || undefined };
+					return { ...base, keys: command.keys, holdMs: command.holdMs, hold: command.hold || undefined };
 				case "macro":
-					return { id: fn.id, label: fn.label, icon: fn.icon, macro: command.steps };
+					return { ...base, macro: command.steps };
 				case "ref":
-					return { id: fn.id, label: fn.label, icon: fn.icon, ref: command.ref };
+					return { ...base, ref: command.ref };
 			}
 		}),
 		layouts: Object.keys(group.layouts).length > 0 ? group.layouts : undefined,

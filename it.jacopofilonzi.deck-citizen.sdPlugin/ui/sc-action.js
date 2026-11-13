@@ -126,6 +126,23 @@ function select(options, value, onchange) {
 	return node;
 }
 
+function checkbox(label, checked, onchange) {
+	const input = el("input", { type: "checkbox", checked, onchange: (e) => onchange(e.target.checked) });
+	return el("div", { class: "row" }, [el("label", { textContent: "" }), el("label", { class: "check" }, [input, " ", label])]);
+}
+
+/** "Skip confirmation" option, shown only when one of the key's functions asks for confirmation. */
+function confirmOption(functions) {
+	const asking = functions.filter((fn) => fn?.confirm);
+	if (asking.length === 0) {
+		return [];
+	}
+	return [
+		checkbox("Skip confirmation", settings.skipConfirm === true, (value) => saveSettings({ skipConfirm: value || undefined })),
+		el("p", { class: "hint", textContent: `${asking.map((fn) => fn.label).join(", ")} ${asking.length > 1 ? "ask" : "asks"} for confirmation before running.` }),
+	];
+}
+
 function message(kind, text) {
 	return el("div", { class: `message ${kind}`, textContent: text });
 }
@@ -190,7 +207,7 @@ function renderKey() {
 	} else {
 		const fn = group.functions.find((f) => f.id === settings.fn);
 		if (fn) {
-			nodes.push(statusMessage(fn));
+			nodes.push(statusMessage(fn), ...confirmOption([fn]));
 		}
 	}
 	return nodes;
@@ -235,6 +252,7 @@ function renderMenuOptions(group) {
 	if (custom) {
 		nodes.push(renderLayoutGrid(group));
 	}
+	nodes.push(...confirmOption(group.functions));
 
 	const problems = group.functions.filter((fn) => fn.state !== "ready");
 	if (problems.length > 0) {
@@ -288,6 +306,7 @@ function renderLayoutGrid(group) {
 
 function renderDial() {
 	const nodes = [el("p", { class: "hint", textContent: "One step per tick. Each gesture runs its own function." })];
+	const chosen = [];
 	for (const [key, label] of [
 		["rotateRight", "Rotate right"],
 		["rotateLeft", "Rotate left"],
@@ -302,9 +321,11 @@ function renderDial() {
 			const fn = group.functions.find((f) => f.id === fnId);
 			if (fn) {
 				nodes.push(statusMessage(fn));
+				chosen.push(fn);
 			}
 		}
 	}
+	nodes.push(...confirmOption(chosen));
 	return nodes;
 }
 
@@ -337,7 +358,7 @@ function renderGlobal() {
 		el("p", {
 			class: "hint",
 			innerHTML:
-				'Each function uses one of: <code>"ref": "group/function"</code>, <code>"keys": "lctrl+f1"</code> (optional <code>"holdMs"</code>, <code>"hold": true</code>), <code>"macro": [...]</code> or <code>"action": "actionmap/action"</code>. Layout cells are <code>x</code> from the left and <code>y</code> from the bottom; <code>x0y0</code> is Back.',
+				'Each function uses one of: <code>"ref": "group/function"</code>, <code>"keys": "lctrl+f1"</code> (optional <code>"holdMs"</code>, <code>"hold": true</code>), <code>"macro": [...]</code> or <code>"action": "actionmap/action"</code> (optional <code>"fallback"</code> action, <code>"wheel": "up"</code>/<code>"down"</code> for mouse wheel binds). <code>"confirm": true</code> asks before running. Layout cells are <code>x</code> from the left and <code>y</code> from the bottom; <code>x0y0</code> is Back.',
 		}),
 		custom,
 		el("div", { class: "buttons", style: "margin-left: 0" }, [
