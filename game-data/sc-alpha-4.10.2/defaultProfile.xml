@@ -968,7 +968,7 @@
   <action name="stopwatch_reset" ActivationMode="delayed_press" keyboard=" " gamepad=" " joystick=" " UILabel="@ui_stopwatch_reset" UIDescription="@ui_v_hud_stopwatch_reset_desc" Category="VehicleActions"/>
   <action name="stopwatch_trigger" ActivationMode="tap" keyboard=" " gamepad=" " joystick=" " UILabel="@ui_stopwatch_trigger" UIDescription="@ui_v_hud_stopwatch_trigger_desc" Category="VehicleActions"/>
  </actionmap>
- <actionmap name="player" version="27" UILabel="@ui_CGFPSMovement" UICategory="@ui_CCFPS">/&gt;                                                                                                                                                                                                                                                                                                                                                                                           
+ <actionmap name="player" version="27" UILabel="@ui_CGFPSMovement" UICategory="@ui_CCFPS">/&gt;
   <action name="moveleft" activationMode="hold" retriggerable="1" keyboard="a" joystick=" " UILabel="@ui_CIFPSMoveLeft" UIDescription="@ui_CIFPSMoveLeftDesc"/>
   <action name="moveright" activationMode="hold" retriggerable="1" keyboard="d" joystick=" " UILabel="@ui_CIFPSMoveRight" UIDescription="@ui_CIFPSMoveRightDesc"/>
   <action name="moveforward" activationMode="hold" retriggerable="1" keyboard="w" joystick=" " UILabel="@ui_CIFPSMoveForward" UIDescription="@ui_CIFPSMoveForwardDesc"/>

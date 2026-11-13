@@ -1,4 +1,4 @@
-// Property inspector of the "Star Citizen" action.
+// Property inspector of the "Function" action.
 // Talks to Stream Deck over its WebSocket; all data (groups, functions, bind status)
 // comes from the plugin, which is also the only writer of the global settings.
 "use strict";

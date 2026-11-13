@@ -1,6 +1,10 @@
-# Star Citizen for Stream Deck
+# Deck Citizen
 
 Stream Deck plugin that controls Star Citizen through the player's own keybinds.
+
+**Install:** download `it.jacopofilonzi.deck-citizen.streamDeckPlugin` from the
+[latest release](https://github.com/jacopofilonzi/deck-citizen/releases/latest) and open it.
+The plugin tells you when a new version is out.
 **Windows only**
 
 ## Development
@@ -56,8 +60,8 @@ git push origin v0.2.0
 ## How it works
 
 - **Keybinds** (`src/keybinds`): binds are built from stacked layers, lowest priority
-  first. Today: default binds bundled with the plugin (`game-data/<build>/defaultProfile.xml`),
-  then the user's `actionmaps.xml`, which only lists what the user changed. Each layer
+  first: the game's default binds (read from `Data.p4k`, see "Game data" below), then
+  the user's `actionmaps.xml`, which only lists what the user changed. Each layer
   comes from a `KeybindSource`; changing the source of truth means changing the list
   in `src/app.ts`. Every action has an activation mode (press, tap, hold, double tap,
   delayed press, ...) that decides how long keys are held.
@@ -98,14 +102,10 @@ bundled with the plugin, and the key settings say so.
 ## Updating the bundled fallback copy after a patch
 
 ```sh
-python tools/p4k_extract.py "<StarCitizen>/LIVE/Data.p4k" "config\defaultprofile.xml" game-data/<build>/raw/defaultProfile.cryxml
-python tools/cryxml2xml.py game-data/<build>/raw/defaultProfile.cryxml game-data/<build>/defaultProfile.xml
-python tools/p4k_extract.py "<StarCitizen>/LIVE/Data.p4k" "localization\english\global.ini" <temp>/global.ini
-python tools/extract_labels.py game-data/<build>/defaultProfile.xml <temp>/global.ini game-data/<build>/labels.json
-npm test   # checks that every built-in group still points at existing actions
+make update-game-data   # reads the installed game into game-data/<build>/, removes older builds
+npm test                # checks that every built-in group still points at existing actions
+git diff game-data      # review what the patch changed
 ```
-
-`tools/*.py` need Python 3.14+ (standard library only).
 
 ## License
 

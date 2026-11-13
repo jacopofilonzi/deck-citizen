@@ -1,7 +1,7 @@
 # Developer shortcuts. Every target runs npm or node, so it works from PowerShell, cmd
 # or Git Bash. Run `make` (or `make help`) for the list.
 
-.PHONY: help install build watch restart test typecheck check pack clean status logs editor switch-dev switch-prod switch-prod-local release
+.PHONY: help install build update-game-data watch restart test typecheck check pack clean status logs editor switch-dev switch-prod switch-prod-local release
 
 help:
 	@echo Setup and build
@@ -17,6 +17,7 @@ help:
 	@echo   make pack               release package in dist/
 	@echo   make release VERSION=x.y.z   tag vX.Y.Z and push it: GitHub publishes the release
 	@echo   make clean              remove build/ and dist/
+	@echo   make update-game-data   refresh the bundled fallback game data from the installed game
 	@echo Stream Deck
 	@echo   make status             which version Stream Deck runs (dev or installed)
 	@echo   make switch-dev         use the linked project folder (development)
@@ -47,6 +48,9 @@ check: typecheck test pack
 
 pack:
 	npm run pack
+
+update-game-data:
+	node tools/update-game-data.mjs
 
 clean:
 	node -e "for (const d of ['build', 'dist']) require('fs').rmSync(d, { recursive: true, force: true })"

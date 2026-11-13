@@ -1,10 +1,10 @@
 {
 	"$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-	"Name": "Star Citizen",
-	"Version": "0.1.0.0",
+	"Name": "Deck Citizen",
+	"Version": "0.0.0.0",
 	"Author": "Jacopo Filonzi",
-	"Description": "Control Star Citizen from Stream Deck with your own keybinds: ready-made groups for doors, lights, power, shields, flight, quantum, weapons, missiles, targeting, mining, salvage and more, menus that adapt to your device, dial support and a visual editor for your own groups.",
-	"Category": "Star Citizen",
+	"Description": "Control Star Citizen from Stream Deck with your own keybinds: ready-made groups for doors, lights, power, shields, flight, quantum, weapons, missiles, targeting, mining, salvage and more, menus that adapt to your device, dial support and a visual editor for your own groups. Fan-made, not affiliated with Cloud Imperium Games.",
+	"Category": "Deck Citizen",
 	"CategoryIcon": "imgs/category",
 	"Icon": "imgs/plugin",
 	"CodePath": "bin/plugin.js",
@@ -25,7 +25,7 @@
 	"UUID": "it.jacopofilonzi.deck-citizen",
 	"Actions": [
 		{
-			"Name": "Star Citizen",
+			"Name": "Function",
 			"UUID": "it.jacopofilonzi.deck-citizen.action",
 			"Icon": "imgs/action",
 			"Tooltip": "Run a Star Citizen function or open a group's menu.",
@@ -54,7 +54,7 @@
 			"Name": "Menu Slot",
 			"UUID": "it.jacopofilonzi.deck-citizen.menu-slot",
 			"Icon": "imgs/action",
-			"Tooltip": "Used by the Star Citizen menu profiles.",
+			"Tooltip": "Used by the Deck Citizen menu profiles.",
 			"Controllers": [
 				"Keypad"
 			],

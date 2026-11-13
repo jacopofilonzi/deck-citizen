@@ -27,7 +27,7 @@ export function readIni(data: Buffer): Map<string, string> {
 
 /**
  * Builds the labels of every action map and action of a default profile, keeping only
- * the strings the keybinds use (same output as tools/extract_labels.py).
+ * the strings the keybinds use.
  */
 export function buildLabels(profile: XmlNode, strings: Map<string, string>): Labels {
 	const lookup = (key: string | undefined): string | undefined => {

@@ -61,7 +61,7 @@ type PiRequest =
 	| { type: "setCheckUpdates"; enabled: boolean };
 
 /**
- * The single "Star Citizen" action. Configured with a group and either one of its
+ * The single "Function" action. Configured with a group and either one of its
  * functions or the group's menu. On dials, each gesture runs its own function.
  */
 @action({ UUID: "it.jacopofilonzi.deck-citizen.action" })
@@ -243,7 +243,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 	#render(instance: ScAction, settings: ScSettings): void {
 		if (instance.isDial()) {
 			const target = app.catalog.lookup(settings.rotateRight ?? settings.rotateLeft ?? settings.press);
-			void instance.setTitle(target ? target.group.label : "Star Citizen");
+			void instance.setTitle(target ? target.group.label : "Deck Citizen");
 			return;
 		}
 		if (!instance.isKey()) {
@@ -253,7 +253,7 @@ export class ScDeckAction extends SingletonAction<ScSettings> {
 		const group = app.catalog.group(settings.group);
 		let image: string;
 		if (!group) {
-			image = renderKey({ caption: "Star Citizen", label: "Set up", icon: "setup", color: "#64748b", footer: "Open settings" });
+			image = renderKey({ caption: "Deck Citizen", label: "Set up", icon: "setup", color: "#64748b", footer: "Open settings" });
 		} else if (settings.fn === MENU) {
 			image = renderKey({ caption: "Menu", label: group.label, icon: group.icon ?? "menu", color: group.color });
 		} else {
