@@ -143,7 +143,7 @@ function notify(info: UpdateInfo): void {
 		`<toast activationType="protocol" launch="${escapeXml(info.url)}">` +
 		`<visual><binding template="ToastGeneric">` +
 		`<text>${escapeXml(`${PRODUCT} ${info.version} is available`)}</text>` +
-		`<text>${escapeXml(`You have ${info.current}. Click to see what's new, or install it from a key's settings in Stream Deck.`)}</text>` +
+		`<text>${escapeXml(`You have ${info.current}. Click to see what's new.`)}</text>` +
 		`</binding></visual></toast>`;
 	const script = [
 		"[Windows.UI.Notifications.ToastNotificationManager, Windows.UI.Notifications, ContentType = WindowsRuntime] | Out-Null",
